@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#F7F5F0">
+<title>🌿 לוח שנה — המטע</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:#F7F5F0;color:#2D2A26;direction:rtl;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
+*{-webkit-tap-highlight-color:transparent}
+button,a{touch-action:manipulation}
+button,input{font-family:inherit;direction:rtl}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-card{background:#fff;border-radius:14px;max-width:400px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.modal-body{padding:18px}
+.modal-emoji{font-size:48px;text-align:center;margin-bottom:8px}
+.modal-title{font-size:20px;font-weight:700;margin-bottom:2px;text-align:center}
+.modal-season{font-size:13px;color:#C44D2B;font-weight:600;margin-bottom:14px;text-align:center}
+.modal-desc{font-size:13px;line-height:1.7;color:#444;margin-bottom:14px}
+.modal-btn{display:block;width:100%;padding:10px;font-size:13px;font-weight:600;border:none;border-radius:8px;cursor:pointer;text-align:center;text-decoration:none;margin-bottom:6px;transition:opacity 0.15s}
+.modal-btn:hover{opacity:0.9}
+.btn-organico{background:#2D6A3F;color:#fff}
+.btn-google{background:#4285F4;color:#fff}
+.btn-wiki{background:#666;color:#fff}
+.modal-close{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useMemo,useEffect}=React;
+const M=["ינו","פבר","מרץ","אפר","מאי","יוני","יולי","אוג","ספט","אוקט","נוב","דצמ"];
+const MF=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+const NOW=new Date().getMonth()+1;
+const nrm=x=>x.replace(/[׳’`]/g,"'").replace(/^\d+\s+/,"").replace(/\s+/g," ").trim();
+const seasonStr=m=>{const s=m.map(x=>MF[x-1]);return s.length<=2?s.join(", "):`${s[0]}–${s[s.length-1]}`;};
+const ORG="https://www.organi-co.co.il/growing/";
+const gImg=q=>`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q)}`;
+
+/* Verified organi-co og:image URLs (real photo of the specific cultivar). Key = variety label */
+/* Local images in ./עצים/ folder. Key = variety label, value = filename (downloaded via the CMD script).
+   If a file is missing, the card falls back to the organico iframe, then to the emoji. */
+/* תמונות מקומיות בתיקיית עצים/ — שם הקובץ לפי images-manifest.csv (jpg / jpeg / png / webp) */
+const IMGDIR="עצים/";
+const LOCAL={"פישולין (ירוק)":"001-picholine-olives","קורנייקי (שמן)":"002-koroneiki-olives","ברנע (שמן/שולחן)":"003-barnea-olives","קלמטה (שחור)":"004-kalamata-olives","פינגר ליים":"005-finger-lime-fruit","קלמנטינה אור":"006-clementine-mandarin","קלמנטינה מיכל":"007-mandarin-fruit","אשכולית עליזה":"008-pink-grapefruit","ניוהול (טבור)":"009-navel-orange","פומלית":"010-oroblanco-sweetie","פומלית אדומה":"011-red-pomelo","פומלו":"012-pomelo-fruit","ראוסטנברג (טבור)":"013-navel-orange","קרה קרה (טבור אדום)":"014-cara-cara-orange","שמוטי":"015-jaffa-orange","מורו (דם)":"016-moro-blood-orange","אורה (מנדרינה)":"017-orri-mandarin","מישל":"018-michal-mango","נטע":"019-neta-mango","נובה":"020-nova-mango","ניו":"021-mango-fruit","עומר":"022-omer-mango","שלי":"023-shelly-mango","ונוס":"024-venus-mango","פאירי":"025-fairchild-mango","R2E2":"026-r2e2-mango","טנגו":"027-tango-mango","גיילור":"028-gaylour-mango","פיור גולד":"029-pure-gold-mango","מיה":"030-maya-mango","מאגי":"031-maggie-mango","קיט":"032-keitt-mango","אטינגר":"033-ettinger-avocado","טיג":"034-tig-avocado","גליל":"035-galil-avocado","פוארטה":"036-fuerte-avocado","פינקרטון":"037-pinkerton-avocado","מלומה":"038-maluma-avocado","הס":"039-hass-avocado","ריד (מאוחר)":"040-reed-avocado","גאלה (מוקדם)":"041-gala-apple","זהוב / Golden":"042-golden-delicious-apple","פינק ליידי (מאוחר)":"043-pink-lady-apple","עודד (אפרסק מוקדם)":"044-peach-fruit","נקטרינה צהובה":"045-nectarine-fruit","נקטרינה לבנה":"046-white-nectarine","סאמר סנו":"047-peach-fruit","פיתה (אפרסק שטוח)":"048-flat-peach","מטלי (מוקדם)":"049-methley-plum","סנטה רוזה":"050-santa-rosa-plum","שגיב":"051-plum-fruit","הודית":"052-plum-fruit","אדומה":"053-red-plum","כחולה":"054-blue-plum","בורו / רגיל":"055-plum-fruit","בלאק":"056-black-plum","אוגדן":"057-plum-fruit","המושל (מאוחר)":"058-plum-fruit","בלדי":"059-apricot-fruit","רעננה":"060-apricot-fruit","פוליפונזי (מאוחר)":"061-apricot-fruit","אגס בלדי":"062-pear-fruit","נאשי (אגס אסייתי)":"063-nashi-asian-pear","תאנה לבנה":"064-white-fig","תאנה קפריסאית":"065-fig-fruit","תאנה ברזילאית":"066-purple-fig","תאנים A/B/C":"067-fig-fruit","שינשו (מוקדם)":"068-jiro-persimmon","סידלס (טריומף)":"069-sharon-fruit-persimmon","רוחו קרמבו":"070-rojo-brillante-persimmon","עין ורד":"071-red-table-grapes","איזבלה":"072-isabella-grapes","קרימזון (מאוחר)":"073-crimson-seedless-grapes","שסק":"074-loquat-fruit","גודגדן":"075-cherry-plum","דובדבן":"076-sweet-cherry","שקד ירוק / רך":"077-green-almonds","שקד יבש":"078-almonds","פקאן קפפר":"079-cape-fear-pecan","פקאן אפאצ'י":"080-apache-pecan","פקאן צ'וקטו":"081-choctaw-pecan","פקאן מהן / מוהוק":"082-mohawk-pecan","מקדמיה":"083-macadamia-nuts","אגוז מלך":"084-walnuts","אגוז קליפורניה":"085-california-walnut","אגוז שחור":"086-black-walnut","אלת פיסטוק":"087-pistachio-nuts","ערמונים":"088-chestnuts","וונדרפול":"089-wonderful-pomegranate","הרשקוביץ":"090-pomegranate-fruit","אנונה גפנר":"091-cherimoya-fruit","אנונה אדומה":"092-annona-reticulata-custard-apple","גואנבנה":"093-soursop","ליצ'י מאוריציוס":"094-lychee-fruit","ליצ'י הונג לונג":"095-lychee-fruit","לונגן":"096-longan-fruit","גויבה ארגמנית":"097-red-guava","גויבה ברזילאית":"098-feijoa-fruit","גויבה רגיל":"099-guava-fruit","שחור מקדים":"100-black-mulberry","שהמי":"101-white-mulberry","פקיסטני":"102-shahtoot-mulberry","אפגני (לבן/שחור)":"103-mulberry-fruit","בננה":"104-bananas","פאפיה":"105-papaya-fruit","פסיפלורה":"106-passion-fruit","פטל לנדאו":"107-raspberries","פטל פריים ארק":"108-prime-ark-blackberry","פטל רפאו":"109-raspberries","פטל בויסן":"110-boysenberry","פיטנגו":"111-pitanga-surinam-cherry","גרומיצ'ומה":"112-grumichama","גבוטיקבה (גל 1)":"113-jabuticaba","גבוטיקבה (גל 2)":"114-jabuticaba","צ'ה":"115-che-fruit-maclura-tricuspidata","פיג'ויה":"116-feijoa","קרמבולה (כוכב)":"117-starfruit-carambola","סברס (צבר)":"118-prickly-pear-fruit","גוג'י ברי":"119-goji-berries","ספודילה":"120-sapodilla-fruit","קניסטל":"121-canistel-eggfruit","תפוח הכוכב":"122-star-apple-caimito","אסרולה":"123-acerola","וואמפי":"124-wampee-fruit","ביגניי":"125-bignay","אמברלה":"126-ambarella-june-plum","אינגה מתוקה":"127-inga-edulis-ice-cream-bean","ג'קפרוט":"128-jackfruit","קוקולובה":"129-sea-grape-coccoloba","פלסה":"130-phalsa-falsa","גרגר פנמה":"131-panama-berry-muntingia","קטמבילה":"132-ketambilla","יאנג מיי":"133-yangmei-chinese-bayberry","סידר ביי":"134-cedar-bay-cherry-eugenia","תפוח ורד לבן":"135-rose-apple-syzygium-jambos","תפוח ורד אדום":"136-rose-apple","אימבה":"137-imbe-garcinia-livingstonei","ריו גרנדה":"138-rio-grande-cherry-eugenia-involucrata","אורנג' ברי":"139-orange-berry-triphasia","אגס ספדונה":"140-pear-fruit","אגס (לא סגור)":"141-pear-fruit","מנגו הרכבה":"142-mango-fruit","אבוקדו":"143-avocado-fruit","אנונה":"144-cherimoya-fruit"};
+const EXTS=["jpg","jpeg","png","webp"];
+const careTypes={
+  pruning:{l:"גיזום",icon:"✂️",c:"#2D6A3F"},
+  planting:{l:"שתילה",icon:"🌳",c:"#1B5E20"},
+  traps:{l:"מלכודות/פיתיון",icon:"🪤",c:"#7B5EA7"},
+  girdle:{l:"חיגור",icon:"🔪",c:"#D4692A"},
+  whitewash:{l:"צביעת לובן",icon:"🖌️",c:"#B8A070"},
+  thin:{l:"דילול",icon:"✋",c:"#C47A9B"},
+
+  propagate:{l:"ריבוי",icon:"🌱",c:"#3A8A5C"},
+  general:{l:"טיפול שוטף",icon:"🔧",c:"#888"},
+};
+
+/* Each variety: l=name, m=months, c=color, d=description, org=organi-co page slug, gq=google image query */
+const cats=[
+  {id:"olives",n:"זיתים",e:"🫒",v:"קורנייקי (7), קלמטה, ברנע, פישולין (8)",
+    care:[{t:"planting",l:"שתילה",m:[3,4,10,11]},{t:"pruning",l:"גיזום עיצוב",m:[2,3]},{t:"whitewash",l:"צביעת לובן",m:[3,4]},{t:"traps",l:"מלכודות זבוב זית",m:[6,7,8,9]},{t:"propagate",l:"ייחורים",m:[8,9,10,11]}],
+    harvest:[
+      {l:"פישולין (ירוק)",m:[9,10],c:"#6B8B3D",d:"זן צרפתי לזית שולחן ירוק. פרי ארוך ודק, בשר יציב, טעם עדין. מצוין לכבישה בתמלחת.",org:"picholine-olive",gq:"זית פישולין picholine"},
+      {l:"קורנייקי (שמן)",m:[10,11],c:"#556B2F",d:"זן יווני מוביל לשמן. פרי קטן מאוד, תכולת שמן גבוהה (עד 28%). שמן פרימיום, חריף וארומטי.",org:"koroneiki-olive",gq:"זית קורנייקי koroneiki"},
+      {l:"ברנע (שמן/שולחן)",m:[10,11],c:"#4A5D23",d:"זן ישראלי דו-שימושי מוולקני. פרי ארוך, שמן עדין. עץ חזק ומהיר צמיחה.",org:"barnea-olive",gq:"זית ברנע"},
+      {l:"קלמטה (שחור)",m:[11,12],c:"#3D3D3D",d:"הזית היווני המפורסם. פרי גדול שקדי, סגול-שחור. נכבש ביין או חומץ. טעם עשיר.",org:"kalamata-olive",gq:"זית קלמטה kalamata"}]},
+  {id:"citrus",n:"הדרים",e:"🍊",v:"ניוהול (4), שמוטי (2), קלמנטינה אור (4), אורה (2), מיכל (2), עליזה (4), פומלו (2), פומלית (4), פומלית אדומה (4), מורו (4), קרה קרה (4), ראוסטנברג (4), פינגר ליים",
+    care:[{t:"planting",l:"שתילה",m:[3,4,5]},{t:"pruning",l:"גיזום קל",m:[2,3]},{t:"whitewash",l:"צביעת לובן",m:[3,4]},{t:"girdle",l:"חיגור קלמנטינה אור",m:[3,4,5]},{t:"traps",l:"מלכודות זבוב ים תיכוני",m:[4,5,6,7,8,9]}],
+    harvest:[
+      {l:"פינגר ליים",m:[7,8,9,10],c:"#7CB342",d:"פרי ייחודי מאוסטרליה. תאי מיץ כדוריים דמויי קוויאר. שימוש בסושי, קוקטיילים ודגים.",org:"finger-lime",gq:"פינגר ליים finger lime"},
+      {l:"קלמנטינה אור",m:[10,11,12],c:"#FF8F00",d:"זן ישראלי מוקדם ממכון וולקני. קל לקילוף, ללא זרעים, מתוק. הראשון בעונה. דורש חיגור לחנטה.",org:"clementine",gq:"קלמנטינה אור clementine or"},
+      {l:"קלמנטינה מיכל",m:[11,12,1],c:"#FB8C00",d:"זן ישראלי, עונת נוב׳-ינו׳. פרי בינוני, מתוק, קל לקילוף.",org:"clementine",gq:"קלמנטינה מיכל"},
+      {l:"אשכולית עליזה",m:[11,12,1,2],c:"#FFD54F",d:"אשכולית ישראלית מתוקה (הכלאת פומלה-אורה). בשר ורוד, מעט מרירות.",org:"grapefruit",gq:"אשכולית עליזה"},
+      {l:"ניוהול (טבור)",m:[11,12,1],c:"#EF6C00",d:"תפוז טבור מוקדם (Newhall). פרי גדול, ללא זרעים, מתוק.",org:"navel-orange",gq:"תפוז ניוהול newhall"},
+      {l:"פומלית",m:[11,12,1,2],c:"#E65100",d:"הכלאה פומלו-אשכולית (Oroblanco). פרי גדול, בשר לבן, מתוק.",org:"oroblanco",gq:"פומלית oroblanco"},
+      {l:"פומלית אדומה",m:[11,12,1,2],c:"#D84315",d:"פומלית עם בשר ורוד-אדום. מתוקה ועסיסית.",org:"oroblanco",gq:"פומלית אדומה"},
+      {l:"פומלו",m:[12,1,2],c:"#C0CA33",d:"ההדר הגדול ביותר. קליפה עבה, בשר מתוק ועדין.",org:"pomelo",gq:"פומלו pomelo"},
+      {l:"ראוסטנברג (טבור)",m:[12,1,2],c:"#F4511E",d:"תפוז נאבל דרום-אפריקאי. פרי גדול, ללא זרעים, מתוק.",org:"navel-orange",gq:"תפוז ראוסטנברג rustenburg"},
+      {l:"קרה קרה (טבור אדום)",m:[12,1,2],c:"#C62828",d:"תפוז טבור עם בשר ורוד-אדום. מתוק במיוחד. מוטציה של וושינגטון נאבל.",org:"cara-cara-orange",gq:"קרה קרה cara cara orange"},
+      {l:"שמוטי",m:[1,2,3],c:"#EF6C00",d:"התפוז הישראלי הקלאסי (Jaffa). בשר עסיסי, מתוק-חמצמץ. סמל הדרי ישראל.",org:"shamouti-orange",gq:"תפוז שמוטי jaffa"},
+      {l:"מורו (דם)",m:[1,2,3],c:"#B71C1C",d:"תפוז דם סיציליאני. בשר אדום כהה, טעם פירותי עם רמזי פירות יער.",org:"blood-orange",gq:"תפוז דם מורו blood orange"},
+      {l:"אורה (מנדרינה)",m:[2,3,4],c:"#FF8F00",d:"מנדרינה ישראלית מאוחרת ממכון וולקני. מתוקה, עסיסית. סוגרת את עונת ההדרים.",org:"orri-mandarin",gq:"מנדרינה אורה orri"}]},
+  {id:"mango",n:"מנגו",e:"🥭",v:"אימבה, מישל, נטע, עומר, נובה, גיילור, ניו, שלי, ונוס, פאירי, R2E2, פיור גולד, מאגי, מיה, טנגו, קיט",
+    care:[{t:"planting",l:"שתילה",m:[3,4,5]},{t:"pruning",l:"גיזום אחרי קטיף",m:[9,10]},{t:"whitewash",l:"צביעת לובן",m:[3,4]},{t:"traps",l:"מלכודות זבוב ים תיכוני",m:[5,6,7,8]},{t:"general",l:"ניקוי עלים נגועים (לחות חוף)",m:[4,5,6,7,8]},{t:"propagate",l:"הרכבה (עיקרי)",m:[8,9,10]},{t:"propagate",l:"הרכבה (משני)/הברכות",m:[3,4,5,6]}],
+    harvest:[
+      {l:"מישל",m:[6,7],c:"#E65100",d:"זן מוקדם פופולרי. פרי בינוני-גדול, בשר כתום-צהוב, מתוק ועסיסי עם מעט סיבים.",org:"mango",gq:"מנגו מישל"},
+      {l:"נטע",m:[6,7],c:"#EF6C00",d:"זן ישראלי מוקדם מוולקני. פרי בינוני, ארומטי מאוד, בשר חלק ומתוק.",org:"mango",gq:"מנגו נטע"},
+      {l:"נובה",m:[7],c:"#FF8F00",d:"זן ישראלי עונת אמצע. פרי בינוני, מתוק, מעט סיבים, צבע כתום-אדמדם.",org:"mango",gq:"מנגו נובה"},
+      {l:"ניו",m:[7],c:"#FFA000",d:"זן ישראלי עונת אמצע. פרי בינוני, בשר מתוק וחלק.",org:"mango",gq:"מנגו ניו new"},
+      {l:"עומר",m:[7,8],c:"#F57C00",d:"זן ישראלי מוולקני, אמצע-עונה. פרי אובלי 400-600 גרם, קליפה אדום-כתום, בשר חלק ללא סיבים, טעם קלאסי חמצמץ.",org:"omer-mango",gq:"מנגו עומר"},
+      {l:"שלי",m:[7,8],c:"#FF9800",d:"זן ישראלי. פרי קטן-בינוני, מתוק מאוד וארומטי.",org:"shelly-mango",gq:"מנגו שלי"},
+      {l:"ונוס",m:[7,8],c:"#FFB300",d:"זן ישראלי (ונוס-נגה). פרי בינוני, בשר חלק, צבע אדמדם יפה.",org:"mango",gq:"מנגו ונוס"},
+      {l:"פאירי",m:[7,8],c:"#FFA726",d:"זן קטן ומתוק במיוחד. ארומטי, אהוב על ילדים.",org:"mango",gq:"מנגו פאירי fairey"},
+      {l:"R2E2",m:[7,8],c:"#FB8C00",d:"זן אוסטרלי, גדול מאוד (עד 1 ק\"ג), קליפה אדמדמה, מתוק עדין.",org:"mango",gq:"R2E2 mango"},
+      {l:"טנגו",m:[7,8],c:"#F4511E",d:"זן ישראלי עונת אמצע. פרי בינוני, מאוזן בין מתיקות לחמיצות.",org:"mango-tango",gq:"מנגו טנגו"},
+      {l:"גיילור",m:[7,8],c:"#FFB74D",d:"פרי בינוני-גדול, טעם עשיר. צבע צהוב-כתום.",org:"mango-gaylour",gq:"מנגו גיילור gaylour"},
+      {l:"פיור גולד",m:[7,8],c:"#FFCA28",d:"צהוב זהוב, מתוק, מעט סיבים. מראה מבריק ואטרקטיבי.",org:"mango",gq:"מנגו פיור גולד pure gold"},
+      {l:"מיה",m:[8,9],c:"#FB8C00",d:"זן ישראלי עונת אמצע-מאוחר. פרי בינוני, טעם מאוזן.",org:"mango",gq:"מנגו מיה"},
+      {l:"מאגי",m:[8,9],c:"#D84315",d:"זן מאוחר. פרי בינוני-גדול, בשר כתום, מתוק ועסיסי. סוגר את העונה.",org:"mango",gq:"מנגו מאגי maggie"},
+      {l:"קיט",m:[8,9],c:"#E65100",d:"הזן המאוחר ביותר. גדול מאוד, נשאר ירוק בשלות. בשר צהוב, מתוק, כמעט ללא סיבים. אחסון מצוין.",org:"mango",gq:"מנגו קיט keitt"}]},
+  {id:"avocado",n:"אבוקדו",e:"🥑",v:"טיג, הס (2), פוארטה (2), מלומה (2), אטינגר (2), ריד (2), גליל, פינקרטון",
+    care:[{t:"planting",l:"שתילה",m:[3,4,5]},{t:"pruning",l:"גיזום",m:[3,4]},{t:"whitewash",l:"צביעת לובן",m:[3,4]},{t:"propagate",l:"העברה לקרקע",m:[3,4,5]}],
+    harvest:[
+      {l:"אטינגר",m:[9,10,11],c:"#558B2F",d:"זן ישראלי מוקדם. פרי ארוך וצר, קליפה ירוקה חלקה ודקה. בשר בהיר, טעם עדין. מפרה (A).",org:"ettinger-avocado",gq:"אבוקדו אטינגר ettinger"},
+      {l:"טיג",m:[8,9,10,11],c:"#689F38",d:"זן ישראלי מוקדם. פרי ארוך, קליפה ירוקה, בשר חלק. מבשיל כבר באוגוסט — מהמוקדמים באבוקדו.",org:"avocado",gq:"אבוקדו טיג tig"},
+      {l:"גליל",m:[10,11,12],c:"#7CB342",d:"זן ישראלי, עונת סתיו. פרי בינוני עגלגל, קליפה ירוקה, בשר שמנוני וטעים.",org:"galil-avocado",gq:"אבוקדו גליל"},
+      {l:"פוארטה",m:[11,12,1,2],c:"#8BC34A",d:"זן קלאסי (B), צורת אגס. קליפה ירוקה חלקה, בשר קרמי, טעם עדין. עונת חורף.",org:"fuerte-avocado",gq:"אבוקדו פוארטה fuerte"},
+      {l:"פינקרטון",m:[12,1,2,3],c:"#4CAF50",d:"פרי ארוך, קליפה מחוספסת. גלעין קטן, הרבה בשר. קרמי ועשיר. חורף-אביב (A).",org:"avocado-pinkerton",gq:"אבוקדו פינקרטון pinkerton"},
+      {l:"מלומה",m:[1,2,3,4],c:"#388E3C",d:"זן דרום-אפריקאי. קליפה כהה כמו הס, עץ קומפקטי. בשר קרמי. חורף-אביב.",org:"maluma-avocado",gq:"אבוקדו מלומה maluma"},
+      {l:"הס",m:[1,2,3,4,5,6],c:"#2E7D32",d:"הזן הפופולרי בעולם (A). קליפה כהה ומחוספסת, בשר שמנוני וקרמי במיוחד. עונה ארוכה.",org:"hass-avocado",gq:"אבוקדו הס hass"},
+      {l:"ריד (מאוחר)",m:[4,5,6,7],c:"#1B5E20",d:"פרי גדול ועגול, קליפה ירוקה עבה. בשר עדין, פחות שומני. הזן המאוחר ביותר (B).",org:"reed-avocado",gq:"אבוקדו ריד reed"}]},
+  {id:"apples",n:"תפוחים",e:"🍏",v:"גאלה, זהוב, פינק ליידי (2)",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום חורפי",m:[12,1,2]},{t:"thin",l:"דילול פירות",m:[4,5]},{t:"traps",l:"מלכודות זבוב ים תיכוני",m:[5,6,7]}],
+    harvest:[
+      {l:"גאלה (מוקדם)",m:[7,8],c:"#E53935",d:"תפוח מתוק ומתון. קליפה צהובה-אדומה, בשר פריך. מוקדם בעונה.",org:"gala-apple",gq:"תפוח גאלה gala"},
+      {l:"זהוב / Golden",m:[8,9],c:"#FDD835",d:"תפוח זהוב קלאסי. בשר מתוק ועדין, קליפה צהובה-ירקרקה.",org:"golden-delicious-apple",gq:"תפוח זהוב golden delicious"},
+      {l:"פינק ליידי (מאוחר)",m:[9,10],c:"#C62828",d:"תפוח ורוד-אדום, פריך וחמצמץ-מתוק. אחסון מעולה.",org:"pink-lady-apple",gq:"פינק ליידי pink lady apple"}]},
+  {id:"peach",n:"אפרסק / נקטרינה",e:"🍑",v:"עודד (2), סאמר סנו (2), פיתה (2), נקטרינה צהובה (2), נקטרינה לבנה (2)",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום חורפי",m:[12,1,2]},{t:"thin",l:"דילול פירות",m:[3,4]},{t:"traps",l:"מלכודות זבוב ים תיכוני",m:[4,5,6,7]}],
+    harvest:[
+      {l:"עודד (אפרסק מוקדם)",m:[5,6],c:"#FF7043",d:"זן ישראלי מוקדם מאוד. בשר צהוב, מתוק.",org:"peach",gq:"אפרסק עודד"},
+      {l:"נקטרינה צהובה",m:[6,7],c:"#FF5722",d:"נקטרינה (אפרסק חלק) עם בשר צהוב, מתוק וחמצמץ. קליפה אדומה מבריקה.",org:"nectarine",gq:"נקטרינה צהובה yellow nectarine"},
+      {l:"נקטרינה לבנה",m:[6,7],c:"#F48FB1",d:"נקטרינה עם בשר לבן, ארומטית ומתוקה במיוחד.",org:"nectarine",gq:"נקטרינה לבנה white nectarine"},
+      {l:"סאמר סנו",m:[6,7],c:"#F4511E",d:"אפרסק עונת אמצע. פרי גדול, בשר צהוב, מתוק ועסיסי.",org:"peach",gq:"אפרסק סאמר סנו summer snow peach"},
+      {l:"פיתה (אפרסק שטוח)",m:[7,8],c:"#E64A19",d:"אפרסק שטוח (דונאט). צורה ייחודית, בשר לבן מתוק מאוד, גלעין קטן.",org:"flat-peach",gq:"אפרסק פיתה flat donut peach"}]},
+  {id:"plums",n:"שזיפים",e:"🟣",v:"הודית, אדומה (3), כחולה, בורו, רגיל (2), המושל, סנטה רוזה (2), אוגדן (2), שגיב (2), מטלי (2), בלאק (2)",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום חורפי",m:[12,1,2]},{t:"thin",l:"דילול פירות",m:[4,5]},{t:"traps",l:"מלכודות זבוב ים תיכוני",m:[5,6,7]},{t:"propagate",l:"הברכות אוויר",m:[4,5,6,7]}],
+    harvest:[
+      {l:"מטלי (מוקדם)",m:[5,6],c:"#D81B60",d:"שזיף יפני מוקדם מאוד. פרי אדום-סגול, מתוק, מהראשונים בעונה.",org:"plum",gq:"שזיף מטלי methley plum"},
+      {l:"סנטה רוזה",m:[6,7],c:"#AD1457",d:"זן יפני קלאסי. קליפה אדומה-סגולה, בשר צהוב-ענבר, מתוק-חמצמץ. מוקדם.",org:"santa-rosa-plum",gq:"שזיף סנטה רוזה santa rosa"},
+      {l:"שגיב",m:[6,7],c:"#9C27B0",d:"זן ישראלי. פרי גדול, סגול, מתוק ועסיסי.",org:"plum",gq:"שזיף שגיב"},
+      {l:"הודית",m:[7,8],c:"#8E24AA",d:"שזיף גדול ומתוק. פופולרי בישראל.",org:"plum",gq:"שזיף הודית"},
+      {l:"אדומה",m:[7,8],c:"#C2185B",d:"שזיף עם קליפה אדומה ובשר צהוב. עסיסי ומתוק.",org:"plum",gq:"שזיף אדום"},
+      {l:"כחולה",m:[7,8],c:"#5E35B1",d:"שזיף אירופי קטן וכחול-סגול, מתוק. גם לייבוש.",org:"plum",gq:"שזיף כחול blue plum"},
+      {l:"בורו / רגיל",m:[7,8],c:"#6A1B9A",d:"בורו — זן אירופי לאכילה ולייבוש. עסיסי.",org:"plum",gq:"שזיף בורו"},
+      {l:"בלאק",m:[7,8],c:"#311B92",d:"שזיף שחור (Black). קליפה כהה מאוד, בשר אדמדם, מתוק ועסיסי.",org:"plum",gq:"black plum fruit"},
+      {l:"אוגדן",m:[7,8],c:"#4527A0",d:"זן מאוחר. פרי גדול, סגול כהה, מתוק.",org:"plum",gq:"שזיף אוגדן ogden"},
+      {l:"המושל (מאוחר)",m:[7,8],c:"#4A148C",d:"שזיף גדול ואיכותי, מאוחר בעונה. סוגר את עונת השזיפים.",org:"plum",gq:"שזיף המושל governor"}]},
+  {id:"apricot",n:"משמשים",e:"🟡",v:"בלדי (2), רעננה (2), פוליפונזי",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום חורפי",m:[12,1,2]},{t:"thin",l:"דילול",m:[3,4]},{t:"traps",l:"מלכודות + פיתיון זבוב",m:[4,5,6]}],
+    harvest:[
+      {l:"בלדי",m:[5,6],c:"#FB8C00",d:"המשמש המסורתי הישראלי. פרי קטן וארומטי, מתוק-חמצמץ. טעם עשיר.",org:"apricot",gq:"משמש בלדי"},
+      {l:"רעננה",m:[5,6],c:"#F57C00",d:"זן ישראלי, פרי בינוני, מתוק. פותח ברעננה.",org:"apricot",gq:"משמש רעננה"},
+      {l:"פוליפונזי (מאוחר)",m:[6,7],c:"#EF6C00",d:"זן מאוחר, פרי גדול ומתוק. סוגר את עונת המשמשים.",org:"apricot",gq:"משמש פוליפונזי polyphonse"}]},
+  {id:"pears",n:"אגסים",e:"🍐",v:"בלדי, אגס, נאשי (4)",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום חורפי",m:[12,1,2]},{t:"thin",l:"דילול פירות",m:[4,5]},{t:"propagate",l:"הברכות אוויר",m:[4,5,6,7]}],
+    harvest:[
+      {l:"אגס בלדי",m:[7,8],c:"#9E9D24",d:"אגס מסורתי ישראלי. פרי בינוני, מתוק ועסיסי. עונת קיץ.",org:"pear",gq:"אגס בלדי"},
+      {l:"נאשי (אגס אסייתי)",m:[8,9],c:"#827717",d:"אגס אסייתי. עגול כתפוח, בשר פריך ועסיסי, מתוק. נשאר פריך בשלות.",org:"nashi-pear",gq:"נאשי nashi pear"}]},
+  {id:"figs",n:"תאנים",e:"🫐",v:"לבנה, קפריסאית, ברזילאית, A, B, C",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום חורפי",m:[1,2]},{t:"traps",l:"מלכודות זבוב ים תיכוני",m:[5,6,7,8,9]},{t:"propagate",l:"ייחורים",m:[12,1,2]}],
+    harvest:[
+      {l:"תאנה לבנה",m:[6,7,8,9],c:"#9CCC65",d:"תאנה בהירה, ירוקה-צהבהבה. בשר ורדרד, מתוקה מאוד. שני יבולים בעונה.",org:"fig",gq:"תאנה לבנה white fig"},
+      {l:"תאנה קפריסאית",m:[7,8,9],c:"#7CB342",d:"תאנה גדולה ומתוקה. דורשת האבקה ע\"י צרעת התאנה.",org:"fig",gq:"תאנה קפריסאית cyprus fig"},
+      {l:"תאנה ברזילאית",m:[7,8,9],c:"#6D4C41",d:"תאנה כהה, סגולה-חומה. בשר אדום, מתוקה ועסיסית.",org:"fig",gq:"תאנה ברזילאית brazilian fig"},
+      {l:"תאנים A/B/C",m:[8,9,10],c:"#4E342E",d:"זני אספנות. כל אחד עם גודל, צבע ומתיקות ייחודיים.",org:"fig",gq:"תאנים זנים"}]},
+  {id:"persimmon",n:"אפרסמון",e:"🟠",v:"סידלס (4), שינשו (4), רוחו קרמבו (2)",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום חורפי",m:[1,2]},{t:"thin",l:"דילול",m:[5,6]}],
+    harvest:[
+      {l:"שינשו (מוקדם)",m:[9,10],c:"#FB8C00",d:"זן יפני מוקדם (Jiro). לא-אסטרינגנטי — אפשר לאכול קשה. בשר כתום, מתוק, פריך.",org:"persimmon",gq:"אפרסמון שינשו jiro"},
+      {l:"סידלס (טריומף)",m:[10,11,12],c:"#EF6C00",d:"זן ללא זרעים (Triumph/שרון). לא-אסטרינגנטי בטיפול. פרי בינוני, מתוק ופריך.",org:"persimmon",gq:"אפרסמון סידלס triumph sharon fruit"},
+      {l:"רוחו קרמבו",m:[10,11,12],c:"#E65100",d:"זן ישראלי. פרי גדול, מתוק במיוחד, טקסטורה קרמית כשבשל.",org:"persimmon",gq:"אפרסמון רוחו קרמבו"}]},
+  {id:"grapes",n:"גפנים",e:"🍇",v:"עין ורד (5 ייחורים), קרימזון (2), איזבלה (2)",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום חורפי",m:[1,2]},{t:"thin",l:"דילול / עיצוב אשכולות",m:[5,6]}],
+    harvest:[
+      {l:"עין ורד",m:[7,8],c:"#AD1457",d:"זן ענב שולחני ורוד-אדום. אשכולות גדולים, מתוק וארומטי. גדל על גדר.",org:"grape",gq:"ענבים עין ורד"},
+      {l:"איזבלה",m:[8,9],c:"#6A1B9A",d:"זן אמריקאי עתיק. ענבים כהים, ארומטיים מאוד. לאכילה, מיץ ויין מתוק.",org:"isabella-grape",gq:"גפן איזבלה isabella grape"},
+      {l:"קרימזון (מאוחר)",m:[9,10],c:"#880E4F",d:"ענב שולחני אדום ללא זרעים. פריך ומתוק. מאוחר בעונה.",org:"crimson-grape",gq:"ענבים קרימזון crimson seedless"}]},
+  {id:"loquat",n:"שסק",e:"🟤",v:"שסק",
+    care:[{t:"planting",l:"שתילה",m:[3,4,10,11]},{t:"pruning",l:"גיזום אחרי קטיף",m:[5,6]},{t:"thin",l:"דילול אשכולות",m:[11,12]}],
+    harvest:[{l:"שסק",m:[3,4,5],c:"#FB8C00",d:"פרי אביבי ייחודי. בשר כתום, מתוק-חמצמץ, עסיסי. פורח בחורף, מבשיל באביב.",org:"loquat",gq:"שסק loquat"}]},
+  {id:"cherry",n:"גודגדן / דובדבן",e:"🍒",v:"גודגדן (4), דובדבן (? — שעות קור נמוכות בשרון)",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום חורפי",m:[12,1,2]},{t:"traps",l:"מלכודות זבוב ים תיכוני",m:[4,5]}],
+    harvest:[
+      {l:"גודגדן",m:[5,6],c:"#C62828",d:"שזיף-דובדבן קטן ומתוק. פרי בגודל דובדבן, אדום-צהוב. קל לגידול בשרון.",org:"myrobalan-plum",gq:"גודגדן cherry plum"},
+      {l:"דובדבן",m:[5,6],c:"#B71C1C",d:"דובדבן אמיתי — דורש 700+ שעות קור שקשה להשיג בשרון. סיכוי חנטה נמוך.",org:"cherry",gq:"דובדבן sweet cherry"}]},
+  {id:"almond",n:"שקדים",e:"🌸",v:"אום אל פאחם (2)",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום חורפי",m:[12,1]}],
+    harvest:[
+      {l:"שקד ירוק / רך",m:[5,6],c:"#8BC34A",d:"קטיף באביב כשהקליפה רכה. אוכלים עם הקליפה. חמצמץ ורענן. מעדן ישראלי.",org:"almond",gq:"שקד ירוק green almonds"},
+      {l:"שקד יבש",m:[8,9],c:"#795548",d:"קטיף בקיץ, הקליפה מתייבשת ונפתחת. אום אל פאחם — זן ערבי מסורתי, טעים.",org:"almond",gq:"שקד אום אל פאחם"}]},
+  {id:"pecan",n:"פקאן",e:"🌰",v:"קפפר (4), אפאצ׳י (4), צ׳וקטו (4), מהן, מוהוק (4)",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום",m:[1,2]},{t:"propagate",l:"הרכבת לחי / שסע",m:[2,3]},{t:"propagate",l:"הרכבת טלאי",m:[6,7]}],
+    harvest:[
+      {l:"פקאן קפפר",m:[10,11],c:"#5D4037",d:"Cape Fear — זן מוקדם-בינוני. אגוז בינוני, קליפה דקה, קל לפיצוח. יבול יציב.",org:"pecan",gq:"פקאן קפפר cape fear pecan"},
+      {l:"פקאן אפאצ׳י",m:[10,11],c:"#6D4C41",d:"Apache — אגוז גדול ואיכותי. קליפה דקה. עץ חסון ופורה.",org:"pecan",gq:"פקאן אפאצ׳י apache pecan"},
+      {l:"פקאן צ׳וקטו",m:[10,11],c:"#795548",d:"Choctaw — מהזנים הגדולים. קליפה דקה, טעם מעולה.",org:"pecan",gq:"פקאן צ׳וקטו choctaw pecan"},
+      {l:"פקאן מהן / מוהוק",m:[10,11],c:"#4E342E",d:"מהן — אגוז ארוך ומרשים. מוהוק — גדול, קליפה דקה במיוחד.",org:"pecan",gq:"פקאן מוהוק mohawk pecan"}]},
+  {id:"nuts",n:"אגוזים אחרים",e:"🥜",v:"אגוז מלך, קליפורניה (2), אגוז שחור, מקדמיה (2), אלת פיסטוק, מלבר, ערמון",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום אגוז מלך / קליפורניה",m:[1,2]},{t:"pruning",l:"גיזום מקדמיה",m:[8,9]}],
+    harvest:[
+      {l:"מקדמיה",m:[7,8],c:"#8D6E63",d:"אגוז אוסטרלי יוקרתי. קליפה קשה מאוד, גרעין שמנוני ועדין. טעם חמאתי.",org:"macadamia",gq:"מקדמיה macadamia nuts"},
+      {l:"אגוז מלך",m:[9,10],c:"#6D4C41",d:"קליפה קשה, גרעין בצורת מוח. עשיר באומגה-3.",org:"walnut",gq:"אגוז מלך walnut"},
+      {l:"אגוז קליפורניה",m:[9,10],c:"#795548",d:"זן אגוז מלך אמריקאי, קליפה רכה יותר, גרעין גדול ובהיר.",org:"walnut",gq:"אגוז קליפורניה california walnut"},
+      {l:"אגוז שחור",m:[9,10],c:"#3E2723",d:"אגוז שחור (Black walnut). קליפה קשה מאוד, טעם עז וייחודי. עץ גדול וחזק.",org:"walnut",gq:"black walnut"},
+      {l:"אלת פיסטוק",m:[8,9],c:"#7CB342",d:"אלת הפיסטוק (Pistacia vera). מקור לאגוזי פיסטוק. עץ ים-תיכוני נשיר, עמיד ליובש, דורש זכר להאבקה. קטיף בסוף קיץ.",org:"pistachio",gq:"אלת פיסטוק pistachio tree"},
+      {l:"ערמונים",m:[10,11],c:"#4E342E",d:"אגוז עמילני (לא שמנוני). נאכל צלוי או מבושל. דורש שעות קור.",org:"chestnut",gq:"ערמונים chestnuts"}]},
+  {id:"pomegranate",n:"רימון",e:"❤️",v:"וונדרפול (2), הרשקוביץ (2)",
+    care:[{t:"planting",l:"שתילה",m:[2,3,11]},{t:"pruning",l:"גיזום",m:[1,2]},{t:"thin",l:"דילול פירות",m:[5,6]}],
+    harvest:[
+      {l:"וונדרפול",m:[9,10,11],c:"#C62828",d:"הזן המסחרי הפופולרי בעולם. גרגרים אדומים כהים, גדולים ועסיסיים. מתוק-חמצמץ.",org:"wonderful-pomegranate",gq:"רימון וונדרפול wonderful pomegranate"},
+      {l:"הרשקוביץ",m:[9,10,11],c:"#B71C1C",d:"זן ישראלי. גרגרים אדומים בהירים, מתוקים במיוחד, זרעים רכים.",org:"pomegranate",gq:"רימון הרשקוביץ"}]},
+  {id:"annona",n:"אנונה",e:"💚",v:"רגיל (2), אדומה, גפנר (2), גואנבנה",
+    care:[{t:"planting",l:"שתילה",m:[4,5]},{t:"pruning",l:"גיזום",m:[2,3]},{t:"propagate",l:"הברכות אוויר",m:[4,5,6]}],
+    harvest:[
+      {l:"אנונה גפנר",m:[10,11,12],c:"#558B2F",d:"זן ישראלי מצטיין. פרי גדול, בשר קרמי לבן, טעם וניל-קרם. מלך הפירות הטרופיים.",org:"gefner-cherimoya",gq:"אנונה גפנר gefner"},
+      {l:"אנונה אדומה",m:[10,11,12],c:"#7CB342",d:"אנונת הרשת. קליפה אדומה-חומה, בשר קרמי ומתוק.",org:"cherimoya",gq:"אנונה אדומה red cherimoya"},
+      {l:"גואנבנה",m:[11,12,1],c:"#33691E",d:"אנונה טרופית גדולה. פרי ירוק קוצני, בשר לבן חמצמץ-מתוק. למיצים. רגיש מאוד לקור.",org:"soursop",gq:"גואנבנה soursop"}]},
+  {id:"lychee",n:"ליצ׳י / לונגן",e:"🔴",v:"מאוריציוס, הונג לונג (2), לונגן",
+    care:[{t:"planting",l:"שתילה",m:[3,4,5]},{t:"pruning",l:"גיזום אחרי קטיף",m:[7,8]},{t:"propagate",l:"הברכות אוויר",m:[4,5,6]}],
+    harvest:[
+      {l:"ליצ׳י מאוריציוס",m:[6,7],c:"#D32F2F",d:"זן מוקדם, פרי גדול. קליפה אדומה מחוספסת, בשר שקוף ומתוק.",org:"lychee",gq:"ליצ׳י מאוריציוס mauritius lychee"},
+      {l:"ליצ׳י הונג לונג",m:[6,7],c:"#C62828",d:"זן סיני, איכות מעולה. בשר עבה ומתוק, גלעין קטן.",org:"lychee",gq:"ליצ׳י הונג לונג hong long"},
+      {l:"לונגן",m:[7,8],c:"#BF360C",d:"קרוב משפחה של ליצ׳י. \"עין הדרקון\". פרי קטן, בשר שקוף ומתוק. מאוחר מליצ׳י.",org:"longan",gq:"לונגן longan"}]},
+  {id:"guava",n:"גויבה",e:"🍈",v:"ארגמנית, ברזילאית, רגיל",
+    care:[{t:"planting",l:"שתילה",m:[3,4,5]},{t:"pruning",l:"גיזום",m:[2,3]},{t:"propagate",l:"הברכות אוויר",m:[4,5,6]}],
+    harvest:[
+      {l:"גויבה ארגמנית",m:[9,10,11,12],c:"#C2185B",d:"גויבה עם בשר ורוד-אדום. ארומטית, עשירה בוויטמין C.",org:"guava",gq:"גויבה ארגמנית red guava"},
+      {l:"גויבה ברזילאית",m:[10,11],c:"#689F38",d:"פייג׳ואה — לא גויבה אמיתית. בשר לבן עם טעם אננס-תות-מנטה.",org:"feijoa",gq:"פייג׳ואה feijoa"},
+      {l:"גויבה רגיל",m:[9,10,11,12],c:"#558B2F",d:"גויבה קלאסית, בשר לבן. ארומטית, ויטמין C פי 4 מתפוז.",org:"guava",gq:"גויבה white guava"}]},
+  {id:"mulberry",n:"תות עץ",e:"🫐",v:"שהמי, פקיסטני, אפגני לבן, אפגני, שחור מקדים",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום חורפי",m:[1,2]}],
+    harvest:[
+      {l:"שחור מקדים",m:[4,5],c:"#37474F",d:"תות עץ מוקדם, פרי שחור, מתוק-חמצמץ. ראשון בעונה.",org:"mulberry",gq:"תות שחור black mulberry"},
+      {l:"שהמי",m:[5,6],c:"#8D6E63",d:"תות לבן-ורוד, מתוק עדין. ארוך וטעים.",org:"mulberry",gq:"תות שהמי"},
+      {l:"פקיסטני",m:[5,6],c:"#263238",d:"תות שחור, ארוך וגדול (עד 8 ס\"מ), מתוק מאוד.",org:"mulberry",gq:"תות פקיסטני pakistani mulberry"},
+      {l:"אפגני (לבן/שחור)",m:[5,6],c:"#4E342E",d:"תות אפגני — ארוך, לבן או שחור, מתוק מאוד. עמיד ופורה.",org:"mulberry",gq:"תות אפגני afghan mulberry"}]},
+  {id:"banana",n:"בננה / פאפיה",e:"🍌",v:"בננה, פאפיה",
+    care:[{t:"planting",l:"שתילה",m:[4,5]},{t:"general",l:"דילול יונקות (בננה)",m:[3,4,5,6,7,8,9]}],
+    harvest:[
+      {l:"בננה",m:[5,6,7,8,9,10],c:"#F9A825",d:"פרי טרופי קלאסי. גדל באשכולות, דורש חום ומים. בשרון — רגיש לקור.",org:"banana",gq:"בננה banana"},
+      {l:"פאפיה",m:[5,6,7,8,9,10,11],c:"#FB8C00",d:"פרי טרופי גדול. בשר כתום-אדום, מתוק. מכיל פפאין. רגיש מאוד לקור.",org:"papaya",gq:"פאפיה papaya"}]},
+  {id:"passionfruit",n:"פסיפלורה",e:"💜",v:"פסיפלורה (3+)",
+    care:[{t:"planting",l:"שתילה",m:[3,4]},{t:"pruning",l:"גיזום",m:[2,3]}],
+    harvest:[{l:"פסיפלורה",m:[7,8,9,10],c:"#6A1B9A",d:"פרי הפסיפלורה — קליפה סגולה או צהובה, זרעים בציפוי חמצמץ-מתוק ארומטי.",org:"passion-fruit",gq:"פסיפלורה passion fruit"}]},
+  {id:"raspberry",n:"פטל",e:"🫐",v:"לנדאו (2), פריים ארק (2), רפאו (2), בויסן (2)",
+    care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום קנים ישנים",m:[1,2]}],
+    harvest:[
+      {l:"פטל לנדאו",m:[5,6],c:"#D81B60",d:"זן פטל אדום פורה. פירות גדולים, מתוקים-חמצמצים. יבול אביבי עיקרי.",org:"raspberry",gq:"פטל לנדאו raspberry"},
+      {l:"פטל פריים ארק",m:[5,6,9,10],c:"#C2185B",d:"Prime-Ark — זן נושא פעמיים (אביב + סתיו). פטל שחור גדול ומתוק. עמיד וקל לגידול.",org:"raspberry",gq:"Prime Ark blackberry"},
+      {l:"פטל רפאו",m:[5,6],c:"#AD1457",d:"זן פטל איכותי. פירות אדומים גדולים ועסיסיים, מתוקים. יבול אביבי.",org:"raspberry",gq:"פטל אדום raspberry"},
+      {l:"פטל בויסן",m:[5,6],c:"#6A1B9A",d:"בויסנברי — הכלאת פטל-אוכמנית. פרי גדול סגול-בורדו, חמצמץ-מתוק עמוק. ארומטי במיוחד.",org:"boysenberry",gq:"boysenberry"}]},
+  {id:"tropical",n:"טרופיים נדירים",e:"🌴",v:"צ׳ה, גרומיצ׳ומה, פיטנגו (4), פיג׳ויה (2), גבוטיקבה, קרמבולה, קניסטל, תפוח הכוכב, ספודילה, תפוח ורד (2), אסרולה, אמברלה, וואמפי, ביגניי, פלסה, ווטר ברי, קוקולובה, אינגה, סידר ביי, גרגר פנמה, קטמבילה, יאנג מיי, ג׳קפרוט, ריו קפולין, ריו גרנדה, אימבה",
+    care:[{t:"planting",l:"שתילה",m:[4,5]},{t:"pruning",l:"גיזום עיצוב",m:[2,3,4]},{t:"propagate",l:"הברכות אוויר",m:[4,5,6]}],
+    harvest:[
+      {l:"פיטנגו",m:[4,5,6],c:"#E53935",d:"דובדבן ברזילאי. פרי מצולע אדום, חמצמץ-מתוק.",org:"pitanga",gq:"פיטנגו pitanga surinam cherry"},
+      {l:"גרומיצ׳ומה",m:[4,5,6],c:"#5D4037",d:"דובדבן ברזילאי שחור, מתוק. דומה לדובדבן אמיתי בטעם.",org:"grumichama",gq:"גרומיצ׳ומה grumichama"},
+      {l:"גבוטיקבה (גל 1)",m:[5,6],c:"#4A148C",d:"פרי ברזילאי שגדל ישירות על הגזע. שחור-סגול, דמוי ענב, מתוק.",org:"jabuticaba",gq:"גבוטיקבה jabuticaba"},
+      {l:"צ׳ה",m:[9,10],c:"#FF6F00",d:"פרי סיני נדיר. דמוי תות ענק אדום, מתוק כשבשל. עץ קוצני, חסין קור.",org:"che-fruit",gq:"צ׳ה che fruit"},
+      {l:"פיג׳ויה",m:[10,11],c:"#2E7D32",d:"גויאבה-אננס. פרי ירוק, בשר לבן עם טעם אננס-תות-מנטה.",org:"feijoa",gq:"פיג׳ויה feijoa"},
+      {l:"קרמבולה (כוכב)",m:[9,10,11],c:"#F9A825",d:"פרי הכוכב. חתך צורת כוכב. צהוב, חמצמץ-מתוק.",org:"carambola",gq:"קרמבולה starfruit carambola"},
+      {l:"גבוטיקבה (גל 2)",m:[9,10],c:"#6A1B9A",d:"גל הפריחה השני של הגבוטיקבה, בסתיו.",org:"jabuticaba",gq:"גבוטיקבה jabuticaba"},
+      {l:"שאר טרופיים",m:[6,7,8,9],c:"#00897B",d:"ספודילה, קניסטל, תפוח ורד, אסרולה, וואמפי, ביגניי, אמברלה, אינגה, ג׳קפרוט ועוד.",org:"tropical-fruits",gq:"פירות טרופיים נדירים"}]},
+  {id:"misc",n:"שונות",e:"🌿",v:"גוג׳י ברי (3), סברס (2), הל",
+    care:[{t:"planting",l:"שתילה",m:[2,3]},{t:"pruning",l:"גיזום גוג׳י",m:[2,3]}],
+    harvest:[
+      {l:"סברס (צבר)",m:[7,8],c:"#E65100",d:"פרי הצבר — סמל ישראלי. קליפה קוצנית, בשר מתוק ועסיסי. קטיף בכפפות!",org:"prickly-pear",gq:"סברס צבר prickly pear"},
+      {l:"גוג׳י ברי",m:[7,8,9],c:"#D32F2F",d:"\"סופר פוד\" סיני. פירות קטנים אדומים. עשירים בנוגדי חמצון.",org:"goji-berry",gq:"גוג׳י ברי goji"}]},
+];
+
+
+let wpErr="";
+
+/* ─── Image search (Openverse: open-licensed photos, ranked + filtered) ─── */
+const NOUN={olives:"oliv",citrus:"orange|mandarin|clementine|citrus|grapefruit|pomelo|lime|tangerine|oroblanco|sweetie|navel|satsuma|tangelo",mango:"mango",avocado:"avocado",apples:"apple",peach:"peach|nectarine",plums:"plum",apricot:"apricot",pears:"pear",figs:"fig",persimmon:"persimmon|kaki|sharon",grapes:"grape",loquat:"loquat",cherry:"cherr|plum",almond:"almond",pecan:"pecan",nuts:"walnut|macadamia|chestnut|pistachio|nut",pomegranate:"pomegranate",annona:"cherimoya|custard|annona|soursop|guanabana|sugar apple",lychee:"lychee|litchi|longan",guava:"guava|feijoa",mulberry:"mulberr",banana:"banana|papaya",passionfruit:"passion",raspberry:"raspberr|blackberr|boysenberr|berr"};
+const QCAT={olives:"olives",citrus:"citrus fruit",mango:"mango fruit",avocado:"avocado fruit",apples:"apple fruit",peach:"peach fruit",plums:"plum fruit",apricot:"apricot fruit",pears:"pear fruit",figs:"fig fruit",persimmon:"persimmon fruit",grapes:"grapes",loquat:"loquat fruit",cherry:"cherry fruit",almond:"almonds",pecan:"pecan nuts",nuts:"nuts",pomegranate:"pomegranate fruit",annona:"cherimoya fruit",lychee:"lychee fruit",guava:"guava fruit",mulberry:"mulberries",banana:"banana fruit",passionfruit:"passion fruit",raspberry:"raspberries"};
+/* [hebrew label, English search query, cultivar keyword(s) that boost the ranking] */
+const EQROWS=[
+["פישולין (ירוק)","Picholine olives","picholine"],["קורנייקי (שמן)","Koroneiki olives","koroneiki"],["ברנע (שמן/שולחן)","Barnea olives","barnea"],["קלמטה (שחור)","Kalamata olives","kalamata"],
+["פינגר ליים","finger lime fruit","finger"],["קלמנטינה אור","clementine mandarin","clementine"],["קלמנטינה מיכל","mandarin fruit","michal"],["אשכולית עליזה","pink grapefruit","grapefruit"],
+["ניוהול (טבור)","navel orange","navel"],["פומלית","oroblanco sweetie","oroblanco|sweetie"],["פומלית אדומה","red pomelo","pomelo"],["פומלו","pomelo fruit","pomelo"],
+["ראוסטנברג (טבור)","navel orange","navel"],["קרה קרה (טבור אדום)","cara cara orange","cara"],["שמוטי","Jaffa orange","jaffa|shamouti"],["מורו (דם)","moro blood orange","moro|blood"],["אורה (מנדרינה)","Orri mandarin","orri"],
+["מישל","Michal mango","michal"],["נטע","Neta mango","neta"],["נובה","Nova mango","nova"],["ניו","mango fruit",""],["עומר","Omer mango","omer"],["שלי","Shelly mango","shelly"],["ונוס","Venus mango","venus"],
+["פאירי","Fairchild mango","fairchild"],["R2E2","R2E2 mango","r2e2"],["טנגו","Tango mango","tango"],["גיילור","Gaylour mango","gaylour"],["פיור גולד","Pure Gold mango","pure gold"],["מיה","Maya mango","maya"],["מאגי","Maggie mango","maggie"],["קיט","Keitt mango","keitt"],
+["אטינגר","Ettinger avocado","ettinger"],["טיג","Tig avocado",""],["גליל","Galil avocado","galil"],["פוארטה","Fuerte avocado","fuerte"],["פינקרטון","Pinkerton avocado","pinkerton"],["מלומה","Maluma avocado","maluma"],["הס","Hass avocado","hass"],["ריד (מאוחר)","Reed avocado","reed"],
+["גאלה (מוקדם)","Gala apple","gala"],["זהוב / Golden","Golden Delicious apple","golden"],["פינק ליידי (מאוחר)","Pink Lady apple","pink lady|cripps"],
+["עודד (אפרסק מוקדם)","peach fruit",""],["נקטרינה צהובה","nectarine fruit","nectarine"],["נקטרינה לבנה","white nectarine","white"],["סאמר סנו","peach fruit","summer"],["פיתה (אפרסק שטוח)","flat peach","flat|donut|doughnut|saturn|peento"],
+["מטלי (מוקדם)","Methley plum","methley"],["סנטה רוזה","Santa Rosa plum","santa rosa"],["שגיב","plum fruit",""],["הודית","plum fruit",""],["אדומה","red plum","red"],["כחולה","blue plum","blue"],["בורו / רגיל","plum fruit",""],["בלאק","black plum","black"],["אוגדן","plum fruit",""],["המושל (מאוחר)","plum fruit",""],
+["בלדי","apricot fruit",""],["רעננה","apricot fruit",""],["פוליפונזי (מאוחר)","apricot fruit",""],
+["אגס בלדי","pear fruit",""],["נאשי (אגס אסייתי)","nashi asian pear","nashi|asian"],
+["תאנה לבנה","white fig","white|green"],["תאנה קפריסאית","fig fruit",""],["תאנה ברזילאית","purple fig","purple|black|brown"],["תאנים A/B/C","fig fruit",""],
+["שינשו (מוקדם)","Jiro persimmon","jiro|fuyu"],["סידלס (טריומף)","Sharon fruit persimmon","sharon|triumph"],["רוחו קרמבו","Rojo Brillante persimmon","rojo"],
+["עין ורד","red table grapes",""],["איזבלה","Isabella grapes","isabella"],["קרימזון (מאוחר)","Crimson Seedless grapes","crimson"],
+["שסק","loquat fruit",""],["גודגדן","cherry plum","cherry plum|myrobalan"],["דובדבן","sweet cherry","cherr"],
+["שקד ירוק / רך","green almonds","green"],["שקד יבש","almonds","almond"],
+["פקאן קפפר","Cape Fear pecan","cape fear"],["פקאן אפאצ׳י","Apache pecan","apache"],["פקאן צ׳וקטו","Choctaw pecan","choctaw"],["פקאן מהן / מוהוק","Mohawk pecan","mohawk|mahan"],
+["מקדמיה","macadamia nuts","macadamia"],["אגוז מלך","walnuts","walnut"],["אגוז קליפורניה","California walnut","california"],["אגוז שחור","black walnut","black"],["אלת פיסטוק","pistachio nuts","pistachio"],["ערמונים","chestnuts","chestnut"],
+["וונדרפול","Wonderful pomegranate","wonderful"],["הרשקוביץ","pomegranate fruit",""],
+["אנונה גפנר","cherimoya fruit","cherimoya"],["אנונה אדומה","Annona reticulata custard apple","reticulata|custard"],["גואנבנה","soursop","soursop|guanabana"],
+["ליצ׳י מאוריציוס","lychee fruit",""],["ליצ׳י הונג לונג","lychee fruit",""],["לונגן","longan fruit","longan"],
+["גויבה ארגמנית","red guava","red|pink"],["גויבה ברזילאית","feijoa fruit","feijoa"],["גויבה רגיל","guava fruit",""],
+["שחור מקדים","black mulberry","black"],["שהמי","white mulberry","white"],["פקיסטני","shahtoot mulberry","shahtoot|long"],["אפגני (לבן/שחור)","mulberry fruit",""],
+["בננה","bananas","banana"],["פאפיה","papaya fruit","papaya"],["פסיפלורה","passion fruit","passion"],
+["פטל לנדאו","raspberries","raspberr"],["פטל פריים ארק","Prime-Ark blackberry","blackberr|prime"],["פטל רפאו","raspberries","raspberr"],["פטל בויסן","boysenberry","boysenberr"],
+["פיטנגו","pitanga Surinam cherry","pitanga|surinam"],["גרומיצ׳ומה","grumichama","grumichama"],["גבוטיקבה (גל 1)","jabuticaba","jabuticaba"],["גבוטיקבה (גל 2)","jabuticaba","jabuticaba"],
+["צ׳ה","Che fruit Maclura tricuspidata","maclura|cudrania|che fruit"],["פיג׳ויה","feijoa","feijoa"],["קרמבולה (כוכב)","starfruit carambola","starfruit|carambola"],
+["סברס (צבר)","prickly pear fruit","prickly|opuntia"],["גוג׳י ברי","goji berries","goji|wolfberry"],
+["ספודילה","sapodilla fruit","sapodilla"],["קניסטל","canistel eggfruit","canistel|eggfruit"],["תפוח הכוכב","star apple caimito","star apple|caimito"],["אסרולה","acerola","acerola|barbados"],
+["וואמפי","wampee fruit","wampee|wampi"],["ביגניי","bignay","bignay"],["אמברלה","ambarella june plum","ambarella|june plum"],["אינגה מתוקה","Inga edulis ice cream bean","inga"],
+["ג'קפרוט","jackfruit","jackfruit"],["קוקולובה","sea grape Coccoloba","coccoloba|sea grape"],["פלסה","phalsa falsa","phalsa|falsa"],["גרגר פנמה","Panama berry Muntingia","muntingia|panama|jamaican cherry"],
+["קטמבילה","ketambilla","ketambilla|dovyalis"],["יאנג מיי","yangmei Chinese bayberry","yangmei|bayberry|yumberry"],["סידר ביי","Cedar Bay cherry Eugenia","cedar bay|eugenia"],
+["תפוח ורד לבן","rose apple Syzygium jambos","rose apple|jambos"],["תפוח ורד אדום","rose apple","rose apple|jambos"],["אימבה","imbe Garcinia livingstonei","imbe|garcinia"],
+["ריו גרנדה","Rio Grande cherry Eugenia involucrata","involucrata|rio grande"],["אורנג' ברי","orange berry Triphasia","triphasia|orange berry"],
+["אגס ספדונה","pear fruit","pear"],["אגס (לא סגור)","pear fruit","pear"],["מנגו הרכבה","mango fruit","mango"],["אבוקדו","avocado fruit","avocado"],["אנונה","cherimoya fruit","cherimoya|annona"],
+];
+const EQ={};EQROWS.forEach(r=>{EQ[nrm(r[0])]=[r[1],r[2]];});
+const NEG=/\b(flower|flowers|blossom|blossoms|leaf|leaves|plant|plants|seedling|seedlings|orchard|orchards|farm|market|stall|vendor|logo|map|drawing|illustration|painting|sketch|vector|clipart|clip|watercolor|watercolour|engraving|botanical|plate|lithograph|poster|icon|emoji|cartoon|recipe|salad|juice|smoothie|cake|jam|sauce|pie|cooked|toast|sandwich|burger|bottle|pizza|soup|dessert|cocktail|people|woman|girl|child|shop|store|package|packaging|label|crate|box|garden|nursery|forest|landscape)\b/i;
+const TREE=/\b(tree|trees)\b/i;
+const LS={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
+/* תמונות שאושרו ונשמרו בקובץ עצמו: {"שם הזן":{src:"https://...",credit:"..."}} */
+const PICKS={};
+const ovCache={};
+async function openverse(q,nounSrc,tokSrc){
+  const key=q+"|"+nounSrc+"|"+tokSrc;
+  if(key in ovCache)return ovCache[key];
+  const must=nounSrc?new RegExp(nounSrc,"i"):null,tok=tokSrc?new RegExp(tokSrc,"i"):null;
+  try{
+    const r=await fetch("https://api.openverse.org/v1/images/?q="+encodeURIComponent(q)+"&category=photograph&mature=false&page_size=30");
+    if(!r.ok){wpErr="Openverse HTTP "+r.status;return [];}
+    const d=await r.json();
+    const scored=[];
+    (d.results||[]).forEach((x,i)=>{
+      const text=((x.title||"")+" "+(x.tags||[]).map(t=>t.name).join(" ")).toLowerCase();
+      if(must&&!must.test(text))return;
+      if(NEG.test(text))return;
+      const hasFruit=/\b(fruit|fruits|ripe|hanging)\b/.test(text);
+      if(TREE.test(text)&&!hasFruit)return;
+      let sc=10-i*0.2;
+      if(TREE.test(text))sc-=3;
+      if(hasFruit)sc+=2;
+      if(tok&&tok.test(text))sc+=4;
+      if(/whole|halved|cut|ripe|closeup|close-up|macro/.test(text))sc+=1;
+      if(x.width&&x.height&&Math.min(x.width,x.height)<300)return;
+      scored.push({sc,x});
+    });
+    scored.sort((a,b)=>b.sc-a.sc);
+    const res=scored.slice(0,12).map(({x})=>({src:x.thumbnail||x.url,link:x.foreign_landing_url,
+      credit:(x.creator?x.creator+" · ":"")+(x.license?"CC "+x.license.toUpperCase()+" · ":"")+(x.source||"Openverse")}));
+    ovCache[key]=res;return res;
+  }catch(e){wpErr=String((e&&e.message)||e);return [];}
+}
+async function findImages(item,cid){
+  const out=[],seen=new Set();
+  const add=a=>a.forEach(x=>{if(x.src&&!seen.has(x.src)){seen.add(x.src);out.push(x);}});
+  const spec=EQ[nrm(item.l)];
+  const q=spec&&spec[0],tok=spec?spec[1]:"";
+  const noun=NOUN[cid]||tok||"";
+  if(q)add(await openverse(q,noun,tok));
+  if(out.length<12&&QCAT[cid])add(await openverse(QCAT[cid],noun,""));
+  return out;
+}
+
+/* ─── Modal ─── */
+function VarietyModal({item,catEmoji,cid,onClose}){
+  const nk=nrm(item.l),key="img:"+nk;
+  const orgUrl=ORG+item.org;
+  const[lx,setLx]=useState(0);
+  const localUrl=LOCAL[nk]&&lx<EXTS.length?IMGDIR+LOCAL[nk]+"."+EXTS[lx]:null;
+  const[imgs,setImgs]=useState(undefined); // undefined=loading, []=none
+  const[idx,setIdx]=useState(0);
+  const[pick,setPick]=useState(PICKS[nk]||LS.get(key)||null);
+  const[grid,setGrid]=useState(false);
+  const[urlIn,setUrlIn]=useState("");
+  const useLocal=localUrl&&!pick;
+  useEffect(()=>{
+    let alive=true;setImgs(undefined);setIdx(0);
+    findImages(item,cid).then(a=>{if(alive)setImgs(a);});
+    return()=>{alive=false;};
+  },[item.l,cid]);
+  const cur=pick||(imgs&&imgs[idx]);
+  const choose=x=>{const p={src:x.src,link:x.link||null,credit:x.credit||""};LS.set(key,p);setPick(p);setGrid(false);};
+  const saveUrl=()=>{const u=urlIn.trim();if(!/^https?:\/\//.test(u))return;choose({src:u,link:null,credit:"נבחרה ידנית"});setUrlIn("");};
+  const clearPick=()=>{LS.del(key);setPick(null);};
+  const gUrl="https://www.google.com/search?tbm=isch&q="+encodeURIComponent(item.gq||item.l);
+  const imgStyle={width:"100%",height:240,objectFit:"cover",borderRadius:"14px 14px 0 0",background:"#E8E2D6"};
+  const btn={fontSize:11,padding:"5px 10px",border:"1px solid #D8D3CA",borderRadius:12,background:"#fff",cursor:"pointer"};
+  return(
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-card" onClick={e=>e.stopPropagation()} style={{position:"relative"}}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        {useLocal
+          ? <img src={localUrl} alt={item.l} onError={()=>setLx(x=>x+1)} style={imgStyle}/>
+          : cur
+            ? <img key={cur.src} src={cur.src} alt={item.l} onError={()=>{if(pick)clearPick();else setIdx(i=>i+1);}} style={imgStyle}/>
+            : <div style={{fontSize:54,textAlign:"center",padding:"28px 0 8px",height:imgs===undefined?240:"auto",boxSizing:"border-box"}}>{imgs===undefined?"⏳":catEmoji}</div>}
+        <div className="modal-body" style={{paddingTop:(useLocal||cur)?12:4}}>
+          {!useLocal&&cur&&<div style={{fontSize:10,color:"#999",direction:"ltr",textAlign:"left",marginBottom:8}}>📷 {pick?"✓ נבחרה · ":""}{cur.link?<a href={cur.link} target="_blank" rel="noopener" style={{color:"#999"}}>{cur.credit}</a>:cur.credit}</div>}
+          <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}}>
+            <button onClick={()=>setGrid(!grid)} style={btn}>🖼 {grid?"סגור":"בחר / הדבק תמונה"}</button>
+            {!pick&&imgs&&imgs.length>1&&<button onClick={()=>setIdx(i=>(i+1)%imgs.length)} style={btn}>🔄 אחרת ({idx+1}/{imgs.length})</button>}
+            {pick&&<button onClick={clearPick} style={btn}>🗑 הסר בחירה</button>}
+          </div>
+          {grid&&<div style={{marginBottom:10}}>
+            {imgs===undefined&&<div style={{fontSize:11,color:"#999"}}>טוען תמונות…</div>}
+            {imgs&&imgs.length>0&&<div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:4,marginBottom:8}}>
+              {imgs.slice(0,12).map(x=><img key={x.src} src={x.src} alt="" onClick={()=>choose(x)} onError={e=>{e.target.style.display="none";}}
+                style={{width:"100%",height:84,objectFit:"cover",borderRadius:6,cursor:"pointer",border:pick&&pick.src===x.src?"3px solid #2D6A3F":"1px solid #ddd"}}/>)}
+            </div>}
+            {imgs&&imgs.length===0&&<div style={{fontSize:11,color:"#B26A00",marginBottom:6}}>לא נמצאו תמונות{wpErr?" ("+wpErr+")":""}. אפשר להדביק כתובת ידנית.</div>}
+            <div style={{display:"flex",gap:4}}>
+              <input dir="ltr" value={urlIn} onChange={e=>setUrlIn(e.target.value)} placeholder="הדבק כתובת תמונה https://…" style={{flex:1,minWidth:0,fontSize:16,padding:"6px 8px",border:"1px solid #D8D3CA",borderRadius:8}}/>
+              <button onClick={saveUrl} style={btn}>שמור</button>
+            </div>
+            <div style={{fontSize:10,color:"#999",marginTop:4}}>בגוגל: לחיצה ימנית על תמונה ← "העתק כתובת תמונה"</div>
+          </div>}
+          <div className="modal-title">{item.l}</div>
+          {item.m&&item.m.length>0&&<div className="modal-season">🗓 עונת קטיף: {seasonStr(item.m)}</div>}
+          <div className="modal-desc">{item.d}</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:"4px 14px"}}>
+            <a href={gUrl} target="_blank" rel="noopener" style={{fontSize:11,color:"#1a73e8",textDecoration:"underline"}}>🔍 תמונות של הזן בגוגל</a>
+            {item.org&&<a href={orgUrl} target="_blank" rel="noopener" style={{fontSize:11,color:"#2D6A3F",textDecoration:"underline"}}>↗ דף מורחב באורגניקו</a>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Bar ─── */
+function Bar({label,months,color,hovered,onHover,uid,onClick,clickable}){
+  const dim=hovered&&hovered!==uid;
+  return(
+    <div style={{display:"grid",gridTemplateColumns:"130px repeat(12,1fr)",marginBottom:3,opacity:dim?0.15:1,transition:"opacity 0.12s"}}>
+      <div onClick={()=>{if(clickable&&onClick)onClick();else onHover(uid===hovered?null:uid)}}
+        onMouseEnter={()=>onHover(uid)} onMouseLeave={()=>onHover(null)}
+        style={{fontSize:10,color,fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",lineHeight:"18px",paddingLeft:2,
+          cursor:"pointer",textDecoration:clickable?"underline dotted":"none",textUnderlineOffset:3}}>
+        {label}{clickable?" ⓘ":""}
+      </div>
+      {Array.from({length:12},(_,i)=>i+1).map(m=>{
+        const on=months.includes(m),pv=months.includes(m===1?12:m-1),nx=months.includes(m===12?1:m+1);
+        return(<div key={m} style={{height:18,display:"flex",alignItems:"center",padding:"0 0.5px",position:"relative"}}>
+          {m===NOW&&<div style={{position:"absolute",top:0,bottom:0,left:"50%",width:1.5,background:"rgba(45,106,63,0.25)",zIndex:0}}/>}
+          {on&&<div style={{width:"100%",height:13,background:color,opacity:0.85,borderRadius:`${on&&!pv?"0 5px 5px 0":"0"} ${on&&!nx?"5px 0 0 5px":"0"}`,zIndex:1}}/>}
+        </div>);
+      })}
+    </div>
+  );
+}
+
+function MonthHeader(){
+  return(<div style={{display:"grid",gridTemplateColumns:"130px repeat(12,1fr)",marginBottom:6,position:"sticky",top:0,background:"#F7F5F0",zIndex:3,paddingBottom:4,borderBottom:"1px solid #E0DBD2"}}>
+    <div/>{M.map((n,i)=>(<div key={i} style={{fontSize:9,fontWeight:700,textAlign:"center",color:i+1===NOW?"#2D6A3F":"#AAA",background:i+1===NOW?"rgba(45,106,63,0.1)":"transparent",borderRadius:4,padding:"2px 0"}}>{n}</div>))}
+  </div>);
+}
+
+function CatSection({cat,children,count}){
+  const[open,setOpen]=useState(true);
+  return(<div style={{marginBottom:4}}>
+    <div onClick={()=>setOpen(!open)} style={{display:"flex",alignItems:"center",gap:4,cursor:"pointer",padding:"5px 6px",borderRadius:6,background:"#fff",marginBottom:open?2:0,boxShadow:"0 1px 2px rgba(0,0,0,0.04)"}}>
+      <span style={{fontSize:13}}>{cat.e}</span><span style={{fontSize:11,fontWeight:700,flex:1}}>{cat.n}</span>
+      <span style={{fontSize:10,color:"#bbb"}}>{count}</span>
+      <span style={{fontSize:9,color:"#AAA",transform:open?"rotate(90deg)":"rotate(0)",transition:"transform 0.15s",marginLeft:2}}>◀</span>
+    </div>
+    {open&&<div style={{paddingRight:4}}>{children}</div>}
+  </div>);
+}
+
+
+
+/* ─── map name → harvest summary ─── */
+const TR="שאר טרופיים";
+const ALIAS={};
+const al=(label,...names)=>names.forEach(n=>ALIAS[nrm(n)]=label);
+["מישל","נטע","נובה","ניו","עומר","שלי","ונוס","פאירי","R2E2","טנגו","גיילור","פיור גולד","מיה","מאגי","קיט"].forEach(n=>al(n,"מנגו "+n));
+al("הס","אבוקדו הס");al("טיג","אבוקדו טיג");al("מלומה","אבוקדו מלומה");al("ריד (מאוחר)","אבוקדו ריד");al("גליל","אבוקדו גליל");
+al("פקאן מהן / מוהוק","פקאן מוהוק","פקאן מהן");al("פקאן צ׳וקטו","פקאן צ'וקטו","פקאן צ'וקוטו");al("פקאן אפאצ׳י","פקאן אפאצ'י");
+al("צ׳ה","צ'ה גדול");al("גרומיצ׳ומה","גרומיצ'ומה");al("פיג׳ויה","פיג'ויה");al("גבוטיקבה (גל 1)","גבוטיקבה");al("קרמבולה (כוכב)","קרמבולה");
+["ריו קפולין","גרגר פנמה","ריו גרנדה","סידר ביי","קטמבילה","יאנג מיי","ג'קפרוט","קוקולובה","ווטר ברי","פלסה","ביגניי","וואמפי","אמברלה","אסרולה","תפוח ורד לבן","תפוח ורד אדום","אינגה מתוקה","ספודילה","תפוח הכוכב","קניסטל","אימבה"].forEach(n=>al(TR,n));
+al("אפגני (לבן/שחור)","תות אפגני","תות אפגני לבן");al("פקיסטני","תות פקיסטני");al("שהמי","תות שהמי");
+al("גויבה רגיל","גויבה");al("וונדרפול","רימון וונדרפול");al("נאשי (אגס אסייתי)","אגס נאשי","נאשי");al("אגס בלדי","אגס בלאדי");
+al("ניוהול (טבור)","ניוהול","תפוז ניוהול");al("קלמנטינה מיכל","מיכל");al("אורה (מנדרינה)","אורה","קלמנטינה אורה");
+al("ראוסטנברג (טבור)","ראוסטנברג","תפוז ראוסטנברג");al("קרה קרה (טבור אדום)","קרה קרה","תפוז קרה קרה");al("מורו (דם)","תפוז דם מורו","תפוז מורו");
+al("פינגר ליים","פינגר ליים / הל");al("תאנים A/B/C","תאנה A","תאנה B","תאנה C");
+al("עודד (אפרסק מוקדם)","אפרסק עודד");al("סאמר סנו","אפרסק סאמר סנו");al("פיתה (אפרסק שטוח)","אפרסק פיתה");
+al("סנטה רוזה","שזיף סנטה רוזה");al("מטלי (מוקדם)","שזיף מטלי");al("שגיב","שזיף שגיב");al("אוגדן","שזיף אוגדן");al("בלאק","שזיף בלאק");al("המושל (מאוחר)","שזיף המושל");
+al("בורו / רגיל","בורו","רגיל");
+al("פינק ליידי (מאוחר)","תפוח פינק ליידי");al("זהוב / Golden","תפוח זהוב");al("גאלה (מוקדם)","תפוח גאלה");
+al("בלדי","משמש בלדי");al("רעננה","משמש רעננה");al("פוליפונזי (מאוחר)","משמש פוליפונזי");
+al("סידלס (טריומף)","אפרסמון סידלס");al("שינשו (מוקדם)","אפרסמון שינשו");al("רוחו קרמבו","אפרסמון רוחו קרמבו");
+al("שקד יבש","שקד אום אל פאחם");al("מקדמיה","אגוז מקדמיה");al("גודגדן","דובדבן גודגדן");al("ערמונים","ערמון");
+al("ליצ׳י מאוריציוס","ליצ'י מאוריציוס");al("ליצ׳י הונג לונג","ליצ'י הונג לונג");al("גוג׳י ברי","גוג'י ברי");al("סברס (צבר)","סברס");
+const HV={};
+cats.forEach(c=>c.harvest.forEach(h=>{HV[nrm(h.l)]={item:h,emoji:c.e,cid:c.id};}));
+function lookupTree(raw){
+  const n=nrm(raw);const key=nrm(ALIAS[n]||n);const hit=HV[key];
+  if(hit)return key===nrm(TR)?{item:{...hit.item,l:n},emoji:hit.emoji}:hit;
+  return {item:{l:n,m:[],c:"#888",d:"אין עדיין סיכום מפורט לזן זה בלוח.",org:"",gq:""},emoji:"🌳"};
+}
+
+/* ─── Orchard maps ─── */
+const TINTS=[
+  [/מנגו|אימבה/,"#FFE0B2"],[/פקאן/,"#D7CCC8"],[/אגוז|מקדמיה|פיסטוק|שקד|ערמון/,"#EFEBE9"],
+  [/אבוקדו|פוארטה|אטינגר|פינקרטון/,"#DCEDC8"],
+  [/קלמנטינה|שמוטי|ניוהול|פומל|אשכולית|ראוסטנברג|^אורה$|^מיכל$|מורו|קרה קרה|פינגר|אורנג/,"#FFF3C4"],
+  [/תאנה/,"#E1BEE7"],[/רימון|וונדרפול|הרשקוביץ/,"#FFCDD2"],[/תות|שחור מקדים/,"#CFD8DC"],
+  [/גויבה|פיג'ויה/,"#C8E6C9"],[/אנונה|גואנבנה/,"#E8F5E9"],[/ליצ'י|לונגן/,"#F8BBD0"],
+  [/אפרסמון/,"#FFCCBC"],[/משמש/,"#FFECB3"],[/אפרסק|נקטרינה/,"#FFD8C8"],[/אגס|נאשי/,"#F0F4C3"],
+  [/תפוח (?!ורד|הכוכב)/,"#FFCDD2"],[/שזיף|^הודית$|^כחולה$|^בורו$|רגיל|אדומה$|גודגדן/,"#D1C4E9"],
+  [/בננה|פפאיה|פאפיה/,"#FFF9C4"],[/פסיפלורה/,"#E1BEE7"],[/שסק/,"#FFE0B2"],
+];
+const tint=n=>{for(const[r,c]of TINTS)if(r.test(n))return c;return "#E0F2F1";};
+const P="#"; // path
+
+/* שטח א — rows as in the sheet; each row lists cells c1..c14 (right to left). {n,s}=span */
+const MAP_A=[
+  ["","","","","","אימבה","",{n:"פאפיה",s:2},{n:"בננה",s:5}],
+  ["","","","","","","","2 אדומה","2 רגיל","בורו","כחולה","אדומה","","הודית"],
+  [P,P,P,P,P,P,P,P,P,P,P,P,P,"צ'ה גדול"],
+  ["פקאן מוהוק","פקאן מוהוק","פקאן מהן","פקאן צ'וקטו","פקאן צ'וקטו","פקאן אפאצ'י","פקאן אפאצ'י","פקאן קפפר","",P,"","",P,"גרומיצ'ומה"],
+  ["הרשקוביץ","רימון וונדרפול","תות אפגני","תות אפגני לבן","תות פקיסטני","תות שהמי","שחור מקדים","","אגוז מלך",P,"אבוקדו",P,P,""],
+  ["הרשקוביץ","רימון וונדרפול","גויבה","גויבה ברזילאית","גויבה ארגמנית","אגס בלדי","מנגו נטע","מנגו מישל","אגוז מלבר",P,"אלת פיסטוק","אבוקדו",P,""],
+  [P,P,"","ניוהול","","אגס (לא סגור)","מנגו נובה","מנגו עומר","מקדמיה",P,"אבוקדו הס","אבוקדו טיג",P,"2 פיג'ויה"],
+  [P,P,"","ניוהול","","","מנגו ניו","מנגו גיילור","",P,"אבוקדו הס","פוארטה",P,"4 פיטנגו"],
+  [P,P,"קלמנטינה אור","שמוטי","אשכולית עליזה","תאנה לבנה","מנגו ונוס","מנגו שלי","",P,"אבוקדו מלומה","פוארטה",P,"פסיפלורה"],
+  [P,P,"קלמנטינה אור","שמוטי","פומלו","תאנה קפריסאית","מנגו טנגו","מנגו פאירי","",P,"אבוקדו מלומה","אטינגר",P,""],
+  [P,P,"אורה","ראוסטנברג","פומלית אדומה","תאנה ברזילאית","מנגו קיט","מנגו פיור גולד","ריו קפולין",P,"אנונה","אטינגר",P,""],
+  [P,P,"אורה","ראוסטנברג","פומלית אדומה","תאנה A","","מנגו מאגי","גרגר פנמה",P,"אנונה אדומה","אבוקדו ריד",P,"3 גוג'י ברי"],
+  [P,P,"מיכל","תפוז דם מורו","פומלית","תאנה B","","מנגו מיה","ריו גרנדה",P,"אנונה גפנר","אבוקדו ריד",P,""],
+  ["אפרסק פיתה","אורנג' ברי","מיכל","קרה קרה","פומלית","תאנה C","","מנגו R2E2","סידר ביי",P,"אנונה גפנר","פינקרטון",P,"פינגר ליים / הל"],
+  ["אפרסמון סידלס","שסק","","ג'קפרוט","יאנג מיי","שזיף המושל","קטמבילה","מנגו הרכבה","גודגדן",P,"אנונה","אבוקדו גליל",P,"2 סברס"],
+  ["אפרסמון שינשו","","קוקולובה","ווטר ברי","פלסה","ביגניי","נאשי","",P,P,P,P,P,P],
+  ["וואמפי","אמברלה","גבוטיקבה","אסרולה","לונגן","תפוח ורד לבן","ליצ'י מאוריציוס","אינגה מתוקה",P,P,P,P,P,P],
+  ["גואנבנה","משמש פוליפונזי","ספודילה","תפוח הכוכב","קניסטל","קרמבולה","ליצ'י הונג לונג","ליצ'י הונג לונג",P,P,P,P,P,P],
+];
+
+/* שטח ב — צורת ח: גדר עליונה + שתי "רגליים". כל תא = עץ אחד */
+const dbl=(...ns)=>ns.flatMap(n=>[n,n]);
+const B_WL=[...dbl("אפרסק עודד","אפרסק סאמר סנו","נקטרינה לבנה","שזיף סנטה רוזה","תפוח פינק ליידי","דובדבן גודגדן"),
+  ...dbl("משמש בלדי","אפרסמון סידלס","משמש רעננה","אפרסמון רוחו קרמבו","שזיף אוגדן","אפרסק פיתה","תפוח גאלה","אגס נאשי","נקטרינה צהובה","שזיף בלאק")];
+const B_WI=["אגוז שחור",...dbl("שזיף מטלי","אפרסמון שינשו","שזיף שגיב","אגס ספדונה","תפוח זהוב","אגס בלאדי")];
+const B_EIN=dbl("אגוז מקדמיה","שקד אום אל פאחם","פקאן אפאצ'י","פקאן קפפר","אלת פיסטוק");
+const B_EOUT=[...dbl("פקאן צ'וקוטו","פקאן קפפר","פקאן מוהוק","אגוז קליפורניה"),
+  ...dbl("פומלו","תפוז ניוהול","פומלית אדומה","אשכולית עליזה","קלמנטינה מיכל","תפוז ראוסטנברג","קלמנטינה אורה","פומלית","תפוז מורו","קלמנטינה אור","תפוז קרה קרה","שמוטי")];
+
+function Cell({name,search,span,small,pos,onPick}){
+  if(name===P)return <div style={{background:"#CFCFCF",minHeight:34,gridColumn:span?`span ${span}`:undefined}}/>;
+  const hit=search&&name&&name.includes(search);
+  const dim=search&&!hit;
+  return <div style={{gridColumn:span?`span ${span}`:undefined,minHeight:34,padding:"3px 2px",fontSize:small?9.5:10.5,lineHeight:1.2,
+    display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",direction:"rtl",
+    background:name?tint(name):"#fff",border:hit?"2px solid #C44D2B":"1px solid #fff",borderRadius:4,
+    opacity:dim?0.3:1,fontWeight:hit?700:500,cursor:name&&onPick?"pointer":"default",...pos}} onClick={name&&onPick?()=>onPick(name):undefined}>{name}</div>;
+}
+
+function MapA({search,onPick}){
+  return <div>
+    <p style={{fontSize:10,color:"#9A958D",textAlign:"center",marginBottom:6}}>אפור = שביל · לחץ על עץ לסיכום · גלול הצידה במובייל</p>
+    <div style={{overflowX:"auto"}}>
+      <div dir="rtl" style={{display:"grid",gridTemplateColumns:"repeat(14,minmax(62px,1fr))",gap:2,minWidth:14*64,background:"#E8E2D6",padding:2,borderRadius:6}}>
+        {MAP_A.map((row,ri)=>{
+          let used=0;const cells=row.map((c,ci)=>{const o=typeof c==="object"?c:{n:c};used+=o.s||1;return <Cell key={ri+"-"+ci} name={o.n} span={o.s} search={search} onPick={onPick} small/>;});
+          for(let k=used;k<14;k++)cells.push(<Cell key={ri+"-f"+k} name="" search={search}/>);
+          return cells;
+        })}
+      </div>
+    </div>
+    <p style={{fontSize:10,color:"#B5B0A8",textAlign:"center",marginTop:6}}>תפוח ורד אדום — לא מופיע בצילום המסך</p>
+  </div>;
+}
+
+function MapB({search,onPick}){
+  const place=(list,col,row0)=>list.map((n,i)=><Cell key={col+"-"+i} name={n} search={search} onPick={onPick} small pos={{gridColumn:col,gridRow:row0+i,minHeight:28}}/>);
+  const top=(txt,col,bg,pick)=>{const hit=search&&txt.includes(search);
+    return <div style={{gridColumn:col,gridRow:1,padding:"6px 4px",fontSize:10.5,lineHeight:1.3,textAlign:"center",background:bg,borderRadius:4,direction:"rtl",
+      display:"flex",alignItems:"center",justifyContent:"center",fontWeight:hit?700:500,border:hit?"2px solid #C44D2B":"1px solid #fff",opacity:search&&!hit?0.3:1,cursor:pick?"pointer":"default"}} onClick={pick?()=>onPick(pick):undefined}>{txt}</div>;};
+  return <div>
+    <p style={{fontSize:10,color:"#9A958D",textAlign:"center",marginBottom:6}}>כמו במפה המקורית · הגדר למעלה · כל תא = עץ אחד · לחץ על עץ לסיכום</p>
+    <div style={{overflowX:"auto"}}>
+      <div dir="ltr" style={{display:"grid",gridTemplateColumns:"1fr 1fr 0.6fr 1fr 1fr",gap:2,minWidth:360,background:"#F7F5F0",padding:2,borderRadius:6}}>
+        {top("🍇 גפן על הגדר: עין ורד (5 ייחורים) · קרימזון ×2 · איזבלה ×2","1 / 3","#EDE7F6")}
+        {top("ערמון",3,tint("ערמון"),"ערמון")}
+        {top("🫐 פטל על הגדר: לנדאו ×2 · פריים ארק ×2 · רפאו ×2 · בויסן ×2","4 / 6","#FCE4EC")}
+        <div style={{gridColumn:3,gridRow:"2 / span 32",background:"repeating-linear-gradient(45deg,#F1EEE6,#F1EEE6 6px,#F7F5F0 6px,#F7F5F0 12px)",borderRadius:4}}/>
+        {place(B_WL,1,2)}{place(B_WI,2,2)}{place(B_EIN,4,3)}{place(B_EOUT,5,2)}
+      </div>
+    </div>
+  </div>;
+}
+
+function App(){
+  const[view,setView]=useState("gantt");
+  const[tab,setTab]=useState("harvest");
+  const[selMonth,setSelMonth]=useState(NOW);
+  const[actFilter,setActFilter]=useState(null);
+  const[hovered,setHovered]=useState(null);
+  const[search,setSearch]=useState("");
+  const[modal,setModal]=useState(null);
+
+  const filtered=useMemo(()=>{
+    if(!search)return cats;
+    return cats.filter(c=>c.n.includes(search)||c.v.includes(search)||c.care.some(a=>a.l.includes(search))||c.harvest.some(a=>a.l.includes(search)));
+  },[search]);
+
+  const monthData=useMemo(()=>filtered.map(c=>{
+    const ca=tab==="care"?c.care.filter(a=>a.m.includes(selMonth)&&(!actFilter||a.t===actFilter)):[];
+    const ha=tab==="harvest"?c.harvest.filter(a=>a.m.includes(selMonth)):[];
+    return(ca.length||ha.length)?{...c,careActs:ca,harvestActs:ha}:null;
+  }).filter(Boolean),[filtered,selMonth,actFilter,tab]);
+
+  const total=useMemo(()=>cats.reduce((s,c)=>s+c.v.split(",").reduce((sum,p)=>{const x=p.match(/\((\d+)\)/);return sum+(x?parseInt(x[1]):1);},0),0),[]);
+  const totalVar=useMemo(()=>cats.reduce((s,c)=>s+c.harvest.length,0),[]);
+
+  const isMap=view==="mapA"||view==="mapB";
+  const exportPicks=()=>{
+    const o={};
+    try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf("img:")===0)o[k.slice(4)]=JSON.parse(localStorage.getItem(k));}}catch(e){}
+    const n=Object.keys(o).length;
+    if(!n){alert("עוד לא נבחרו תמונות");return;}
+    const txt=JSON.stringify(o);
+    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>alert("הועתקו "+n+" תמונות. הדבק אותן בצ'אט."),()=>window.prompt("העתק (Ctrl+C):",txt));
+  };
+  const pickTree=n=>{const r=lookupTree(n);setModal({item:r.item,emoji:r.emoji,cid:r.cid});};
+  return(<div style={{padding:"16px 10px",minHeight:"100vh"}}>
+    {modal&&<VarietyModal item={modal.item} catEmoji={modal.emoji} cid={modal.cid} onClose={()=>setModal(null)}/>}
+    <div style={{maxWidth:680,margin:"0 auto"}}>
+      <h1 style={{fontSize:20,fontWeight:700,textAlign:"center",margin:"0 0 2px"}}>🌿 לוח שנה — המטע</h1>
+      <p style={{textAlign:"center",fontSize:11,color:"#9A958D",margin:"0 0 12px"}}>~{total} עצים · {totalVar} זנים · אזור השרון</p>
+
+      <div style={{display:"flex",marginBottom:10,borderRadius:8,overflow:"hidden",border:"1px solid #D8D3CA"}}>
+        {[{id:"gantt",l:"📊 שנתי"},{id:"monthly",l:"📅 חודשי"},{id:"mapA",l:"🗺️ שטח א"},{id:"mapB",l:"🗺️ שטח ב"}].map(v=>(<button key={v.id} onClick={()=>setView(v.id)} style={{flex:1,padding:"8px 0",fontSize:12,fontWeight:600,border:"none",cursor:"pointer",background:view===v.id?"#2D6A3F":"#fff",color:view===v.id?"#fff":"#555"}}>{v.l}</button>))}
+      </div>
+
+      {!isMap&&<div style={{display:"flex",marginBottom:10,borderRadius:8,overflow:"hidden",border:"1px solid #D8D3CA"}}>
+        <button onClick={()=>{setTab("care");setActFilter(null)}} style={{flex:1,padding:"7px 0",fontSize:12,fontWeight:600,border:"none",cursor:"pointer",background:tab==="care"?"#4A7C59":"#fff",color:tab==="care"?"#fff":"#666"}}>✂️ טיפול</button>
+        <button onClick={()=>{setTab("harvest");setActFilter(null)}} style={{flex:1,padding:"7px 0",fontSize:12,fontWeight:600,border:"none",cursor:"pointer",background:tab==="harvest"?"#C44D2B":"#fff",color:tab==="harvest"?"#fff":"#666"}}>🍎 קטיף</button>
+      </div>}
+
+      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 חפש עץ, זן או פעילות..." style={{width:"100%",padding:"9px 12px",fontSize:16,border:"1px solid #D8D3CA",borderRadius:8,marginBottom:10,background:"#fff",outline:"none"}}/>
+
+      {!isMap&&tab==="harvest"&&<p style={{fontSize:10,color:"#C44D2B",textAlign:"center",marginBottom:8}}>👆 לחץ על זן למידע ועונת קטיף</p>}
+
+      {!isMap&&tab==="care"&&<div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:10}}>
+        <button onClick={()=>setActFilter(null)} style={{padding:"4px 10px",fontSize:10,border:"1px solid #D8D3CA",borderRadius:12,cursor:"pointer",background:!actFilter?"#2D2A26":"#fff",color:!actFilter?"#fff":"#777",fontWeight:600}}>הכל</button>
+        {Object.entries(careTypes).map(([k,v])=>{
+          const has=view==="gantt"?filtered.some(c=>c.care.some(a=>a.t===k)):filtered.some(c=>c.care.some(a=>a.t===k&&a.m.includes(selMonth)));
+          if(!has)return null;
+          return(<button key={k} onClick={()=>setActFilter(actFilter===k?null:k)} style={{padding:"4px 9px",fontSize:10,border:`1px solid ${actFilter===k?v.c:"#D8D3CA"}`,borderRadius:12,cursor:"pointer",background:actFilter===k?v.c:"#fff",color:actFilter===k?"#fff":"#777",fontWeight:600}}>{v.icon} {v.l}</button>);
+        })}
+      </div>}
+
+      {view==="mapA"&&<MapA search={search} onPick={pickTree}/>}
+      {view==="mapB"&&<MapB search={search} onPick={pickTree}/>}
+
+      {view==="gantt"&&<div style={{overflowX:"auto"}}><div style={{minWidth:540}}>
+        <MonthHeader/>
+        {tab==="care"
+          ? Object.entries(careTypes).map(([k,info])=>{
+              if(actFilter&&actFilter!==k)return null;
+              // collect every (category, action) of this type
+              const rows=[];
+              filtered.forEach(cat=>cat.care.forEach(a=>{if(a.t===k)rows.push({cat,a});}));
+              if(!rows.length)return null;
+              const fakeCat={id:"act-"+k,n:`${info.icon} ${info.l}`,e:""};
+              return <CatSection key={k} cat={fakeCat} count={rows.length}>
+                {rows.map((r,i)=><Bar key={i} label={`${r.cat.e} ${r.cat.n}${r.a.l!==info.l?" · "+r.a.l.replace(info.l,"").trim():""}`} months={r.a.m} color={info.c} uid={`${k}-${i}`} hovered={hovered} onHover={setHovered} clickable={false}/>)}
+              </CatSection>;
+            })
+          : filtered.map(cat=>{
+              if(!cat.harvest.length)return null;
+              return <CatSection key={cat.id} cat={cat} count={cat.harvest.length}>
+                {cat.harvest.map((h,i)=><Bar key={i} label={h.l} months={h.m} color={h.c} uid={`${cat.id}-h-${i}`} hovered={hovered} onHover={setHovered} clickable={true} onClick={()=>setModal({item:h,emoji:cat.e,cid:cat.id})}/>)}
+              </CatSection>;
+            })}
+      </div></div>}
+
+      {view==="monthly"&&<>
+        <div style={{display:"flex",gap:4,marginBottom:8,overflowX:"auto",paddingBottom:4}}>
+          {MF.map((name,i)=>{const m=i+1;return(<button key={m} onClick={()=>setSelMonth(m)} style={{flexShrink:0,padding:"6px 9px",fontSize:11,fontWeight:m===selMonth?700:500,border:m===NOW?"2px solid #2D6A3F":"1px solid #D8D3CA",borderRadius:16,cursor:"pointer",background:m===selMonth?"#2D6A3F":"#fff",color:m===selMonth?"#fff":m===NOW?"#2D6A3F":"#555"}}>{name}</button>);})}
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {tab==="care"
+            ? (()=>{
+                // group this month's care actions by action type
+                const groups=Object.entries(careTypes).map(([k,info])=>{
+                  if(actFilter&&actFilter!==k)return null;
+                  const trees=[];
+                  filtered.forEach(cat=>cat.care.forEach(a=>{if(a.t===k&&a.m.includes(selMonth))trees.push(cat.e+" "+cat.n+(a.l!==info.l?" ("+a.l.replace(info.l,"").trim()+")":""));}));
+                  return trees.length?{k,info,trees}:null;
+                }).filter(Boolean);
+                if(!groups.length)return <p style={{textAlign:"center",color:"#AAA",fontSize:13,marginTop:20}}>אין טיפולים ב{MF[selMonth-1]}</p>;
+                return groups.map(g=>(
+                  <div key={g.k} style={{background:"#fff",borderRadius:10,padding:"10px 12px",boxShadow:"0 1px 3px rgba(0,0,0,0.05)",border:"1px solid #E8E2D6"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:8,paddingBottom:6,borderBottom:`2px solid ${g.info.c}`}}>
+                      <span style={{fontSize:16}}>{g.info.icon}</span><span style={{fontSize:14,fontWeight:700,color:g.info.c}}>{g.info.l}</span>
+                      <span style={{fontSize:11,color:"#bbb",marginRight:"auto"}}>{g.trees.length} עצים</span>
+                    </div>
+                    <div style={{display:"flex",flexWrap:"wrap",gap:"4px 10px"}}>
+                      {g.trees.map((t,i)=><span key={i} style={{fontSize:12,fontWeight:500}}>{t}</span>)}
+                    </div>
+                  </div>
+                ));
+              })()
+            : (monthData.length
+                ? monthData.map(cat=>(<div key={cat.id} style={{background:"#fff",borderRadius:10,padding:"10px 12px",boxShadow:"0 1px 3px rgba(0,0,0,0.05)",border:"1px solid #E8E2D6"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+                      <span style={{fontSize:15}}>{cat.e}</span><span style={{fontSize:13,fontWeight:700}}>{cat.n}</span>
+                    </div>
+                    {cat.harvestActs.map((h,i)=>(<div key={i} onClick={()=>setModal({item:h,emoji:cat.e,cid:cat.id})} style={{display:"flex",alignItems:"center",gap:6,marginBottom:3,cursor:"pointer"}}>
+                      <div style={{width:4,height:18,borderRadius:2,background:h.c,flexShrink:0}}/><span style={{fontSize:12,fontWeight:500,textDecoration:"underline dotted",textUnderlineOffset:3}}>🍎 {h.l} ⓘ</span>
+                    </div>))}
+                  </div>))
+                : <p style={{textAlign:"center",color:"#AAA",fontSize:13,marginTop:20}}>אין קטיף ב{MF[selMonth-1]}</p>)}
+        </div>
+      </>}
+
+      <div style={{textAlign:"center",marginTop:14}}>
+        <button onClick={exportPicks} style={{fontSize:11,padding:"6px 12px",border:"1px solid #D8D3CA",borderRadius:12,background:"#fff",cursor:"pointer"}}>📤 ייצא את התמונות שבחרתי</button>
+      </div>
+      <p style={{textAlign:"center",fontSize:10,color:"#B5B0A8",marginTop:16,lineHeight:1.8}}>⏱ מותאם לאקלים השרון · 💧 כולם על אותה מערכת השקיה<br/>📅 טיפול מקובץ לפי פעולה · 🍎 קטיף לפי זן (לחץ למידע)</p>
+    </div>
+  </div>);
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
