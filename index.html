@@ -527,9 +527,9 @@ const MAP_A=[
   [P,P,"קלמנטינה אור","שמוטי","אשכולית עליזה","תאנה לבנה","מנגו ונוס","מנגו שלי","",P,"אבוקדו מלומה","פוארטה",P,"פסיפלורה"],
   [P,P,"קלמנטינה אור","שמוטי","פומלו","תאנה קפריסאית","מנגו טנגו","מנגו פאירי","",P,"אבוקדו מלומה","אטינגר",P,""],
   [P,P,"אורה","ראוסטנברג","פומלית אדומה","תאנה ברזילאית","מנגו קיט","מנגו פיור גולד","ריו קפולין",P,"אנונה","אטינגר",P,""],
-  [P,P,"אורה","ראוסטנברג","פומלית אדומה","תאנה A","","מנגו מאגי","גרגר פנמה",P,"אנונה אדומה","אבוקדו ריד",P,"3 גוג'י ברי"],
-  [P,P,"מיכל","תפוז דם מורו","פומלית","תאנה B","","מנגו מיה","ריו גרנדה",P,"אנונה גפנר","אבוקדו ריד",P,""],
-  ["אפרסק פיתה","אורנג' ברי","מיכל","קרה קרה","פומלית","תאנה C","","מנגו R2E2","סידר ביי",P,"אנונה גפנר","פינקרטון",P,"פינגר ליים / הל"],
+  [P,P,"אורה","ראוסטנברג","פומלית אדומה","","","מנגו מאגי","גרגר פנמה",P,"אנונה אדומה","אבוקדו ריד",P,"3 גוג'י ברי"],
+  [P,P,"מיכל","תפוז דם מורו","פומלית","","","מנגו מיה","ריו גרנדה",P,"אנונה גפנר","אבוקדו ריד",P,""],
+  ["אפרסק פיתה","אורנג' ברי","מיכל","קרה קרה","פומלית","","","מנגו R2E2","סידר ביי",P,"אנונה גפנר","פינקרטון",P,"פינגר ליים / הל"],
   ["אפרסמון סידלס","שסק","","ג'קפרוט","יאנג מיי","שזיף המושל","קטמבילה","מנגו הרכבה","גודגדן",P,"אנונה","אבוקדו גליל",P,"2 סברס"],
   ["אפרסמון שינשו","","קוקולובה","ווטר ברי","פלסה","ביגניי","נאשי","",P,P,P,P,P,P],
   ["וואמפי","אמברלה","גבוטיקבה","אסרולה","לונגן","תפוח ורד לבן","ליצ'י מאוריציוס","אינגה מתוקה",P,P,P,P,P,P],
@@ -544,6 +544,14 @@ const B_WI=["אגוז שחור",...dbl("שזיף מטלי","אפרסמון שי�
 const B_EIN=dbl("אגוז מקדמיה","שקד אום אל פאחם","פקאן אפאצ'י","פקאן קפפר","אלת פיסטוק");
 const B_EOUT=[...dbl("פקאן צ'וקוטו","פקאן קפפר","פקאן מוהוק","אגוז קליפורניה"),
   ...dbl("פומלו","תפוז ניוהול","פומלית אדומה","אשכולית עליזה","קלמנטינה מיכל","תפוז ראוסטנברג","קלמנטינה אורה","פומלית","תפוז מורו","קלמנטינה אור","תפוז קרה קרה","שמוטי")];
+
+const mapTreeCount=cell=>{
+  const name=typeof cell==="object"?cell.n:cell;
+  if(!name||name===P)return 0;
+  const quantity=String(name).match(/^(\d+)\s+/);
+  return quantity?Number(quantity[1]):1;
+};
+const totalTrees=()=>MAP_A.flat().reduce((sum,cell)=>sum+mapTreeCount(cell),0)+B_WL.length+B_WI.length+B_EIN.length+B_EOUT.length;
 
 function Cell({name,search,span,small,pos,onPick}){
   if(name===P)return <div style={{background:"#CFCFCF",minHeight:34,gridColumn:span?`span ${span}`:undefined}}/>;
@@ -610,7 +618,7 @@ function App(){
     return(ca.length||ha.length)?{...c,careActs:ca,harvestActs:ha}:null;
   }).filter(Boolean),[filtered,selMonth,actFilter,tab]);
 
-  const total=useMemo(()=>cats.reduce((s,c)=>s+c.v.split(",").reduce((sum,p)=>{const x=p.match(/\((\d+)\)/);return sum+(x?parseInt(x[1]):1);},0),0),[]);
+  const total=useMemo(totalTrees,[]);
   const totalVar=useMemo(()=>cats.reduce((s,c)=>s+c.harvest.length,0),[]);
 
   const isMap=view==="mapA"||view==="mapB";
@@ -628,7 +636,7 @@ function App(){
     <div style={{maxWidth:680,margin:"0 auto"}}>
       <div style={{display:"flex",justifyContent:"center",alignItems:"baseline",gap:8,margin:"0 0 12px"}}>
         <h1 style={{fontSize:20,fontWeight:700,margin:0}}>בוסתן להבי בני ציון</h1>
-        <span style={{fontSize:10,color:"#9A958D",whiteSpace:"nowrap"}}>~{total} עצים · {totalVar} זנים</span>
+        <span style={{fontSize:10,color:"#9A958D",whiteSpace:"nowrap"}}>{total} עצים · {totalVar} זנים</span>
       </div>
 
       <div style={{display:"flex",marginBottom:10,borderRadius:8,overflow:"hidden",border:"1px solid #D8D3CA"}}>
