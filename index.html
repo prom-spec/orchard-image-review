@@ -16,6 +16,10 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:#F7F5F0;color:#2D2A26;d
 *{-webkit-tap-highlight-color:transparent}
 button,a{touch-action:manipulation}
 button,input{font-family:inherit;direction:rtl}
+/* קריאות במובייל: אין טקסט קטן משדה החיפוש (16px). */
+#root *{font-size:16px!important}
+#root h1{font-size:24px!important}
+#root .modal-emoji{font-size:48px!important}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-card{background:#fff;border-radius:14px;max-width:400px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
 .modal-body{padding:18px}
