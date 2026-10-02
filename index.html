@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#F7F5F0">
-<title>🌿 לוח שנה — המטע</title>
+<title>בוסתן להבי בני ציון</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -626,8 +626,10 @@ function App(){
   return(<div style={{padding:"16px 10px",minHeight:"100vh"}}>
     {modal&&<VarietyModal item={modal.item} catEmoji={modal.emoji} cid={modal.cid} onClose={()=>setModal(null)}/>}
     <div style={{maxWidth:680,margin:"0 auto"}}>
-      <h1 style={{fontSize:20,fontWeight:700,textAlign:"center",margin:"0 0 2px"}}>🌿 לוח שנה — המטע</h1>
-      <p style={{textAlign:"center",fontSize:11,color:"#9A958D",margin:"0 0 12px"}}>~{total} עצים · {totalVar} זנים · אזור השרון</p>
+      <div style={{display:"flex",justifyContent:"center",alignItems:"baseline",gap:8,margin:"0 0 12px"}}>
+        <h1 style={{fontSize:20,fontWeight:700,margin:0}}>בוסתן להבי בני ציון</h1>
+        <span style={{fontSize:10,color:"#9A958D",whiteSpace:"nowrap"}}>~{total} עצים · {totalVar} זנים</span>
+      </div>
 
       <div style={{display:"flex",marginBottom:10,borderRadius:8,overflow:"hidden",border:"1px solid #D8D3CA"}}>
         {[{id:"gantt",l:"📊 שנתי"},{id:"monthly",l:"📅 חודשי"},{id:"mapA",l:"🗺️ שטח א"},{id:"mapB",l:"🗺️ שטח ב"}].map(v=>(<button key={v.id} onClick={()=>setView(v.id)} style={{flex:1,padding:"8px 0",fontSize:12,fontWeight:600,border:"none",cursor:"pointer",background:view===v.id?"#2D6A3F":"#fff",color:view===v.id?"#fff":"#555"}}>{v.l}</button>))}
