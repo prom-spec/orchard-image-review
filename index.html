@@ -47,6 +47,7 @@ const nrm=x=>x.replace(/[׳’`]/g,"'").replace(/^\d+\s+/,"").replace(/\s+/g," "
 const cleanVarietyName=x=>x.replace(/\s*\([^)]*\)/g,"").replace(/\s{2,}/g," ").trim();
 const cleanCareName=x=>x.startsWith("מלכודות")?"מלכודות":x.startsWith("דילול")?"דילול":x==="גיזום חורפי"?"גיזום":x;
 const careExtra=(label,base)=>{const clean=cleanCareName(label);return clean===base?"":clean.replace(base,"").trim();};
+const separateCareNames=name=>name.split(/\s*\/\s*/).map(x=>x.trim()).filter(Boolean);
 const seasonStr=m=>{const s=m.map(x=>MF[x-1]);return s.length<=2?s.join(", "):`${s[0]}–${s[s.length-1]}`;};
 const ORG="https://www.organi-co.co.il/growing/";
 const gImg=q=>`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q)}`;
@@ -703,7 +704,7 @@ function App(){
               if(actFilter&&actFilter!==k)return null;
               // collect every (category, action) of this type
               const rows=[];
-              filtered.forEach(cat=>cat.care.forEach(a=>{if(a.t===k)rows.push({cat,a});}));
+              filtered.forEach(cat=>cat.care.forEach(a=>{if(a.t===k)separateCareNames(cat.n).forEach(n=>rows.push({cat:{...cat,n},a}));}));
               if(!rows.length)return null;
               const fakeCat={id:"act-"+k,n:`${info.icon} ${info.l}`,e:""};
               return <CatSection key={k} cat={fakeCat} count={rows.length}>
@@ -729,7 +730,7 @@ function App(){
                 const groups=Object.entries(careTypes).map(([k,info])=>{
                   if(actFilter&&actFilter!==k)return null;
                   const trees=[];
-                  filtered.forEach(cat=>cat.care.forEach(a=>{if(a.t===k&&a.m.includes(selMonth))trees.push(cat.n+(careExtra(a.l,info.l)?" ("+careExtra(a.l,info.l)+")":""));}));
+                  filtered.forEach(cat=>cat.care.forEach(a=>{if(a.t===k&&a.m.includes(selMonth))separateCareNames(cat.n).forEach(n=>trees.push(n+(careExtra(a.l,info.l)?" ("+careExtra(a.l,info.l)+")":"")));}));
                   return trees.length?{k,info,trees}:null;
                 }).filter(Boolean);
                 if(!groups.length)return <p style={{textAlign:"center",color:"#AAA",fontSize:13,marginTop:20}}>אין טיפולים ב{MF[selMonth-1]}</p>;
