@@ -45,7 +45,7 @@ const MF=["ינואר","פברואר","מרץ","אפריל","מאי","יוני",
 const NOW=new Date().getMonth()+1;
 const nrm=x=>x.replace(/[׳’`]/g,"'").replace(/^\d+\s+/,"").replace(/\s+/g," ").trim();
 const cleanVarietyName=x=>x.replace(/\s*\([^)]*\)/g,"").replace(/\s{2,}/g," ").trim();
-const cleanCareName=x=>x.startsWith("מלכודות")?"מלכודות":x.startsWith("דילול")?"דילול":x==="גיזום חורפי"?"גיזום":x;
+const cleanCareName=x=>x.startsWith("מלכודות")?"מלכודות":x.startsWith("דילול")?"דילול":x==="גיזום חורפי"||x==="גיזום אחרי קטיף"?"גיזום":x;
 const careExtra=(label,base)=>{const clean=cleanCareName(label);return clean===base?"":clean.replace(base,"").trim();};
 const separateCareNames=name=>name.split(/\s*\/\s*/).map(x=>x.trim()).filter(Boolean);
 const seasonStr=m=>{const s=m.map(x=>MF[x-1]);return s.length<=2?s.join(", "):`${s[0]}–${s[s.length-1]}`;};
@@ -259,7 +259,7 @@ const cats=[
       {l:"פטל פריים ארק",m:[5,6,9,10],c:"#C2185B",d:"Prime-Ark — זן נושא פעמיים (אביב + סתיו). פטל שחור גדול ומתוק. עמיד וקל לגידול.",org:"raspberry",gq:"Prime Ark blackberry"},
       {l:"פטל רפאו",m:[5,6],c:"#AD1457",d:"זן פטל איכותי. פירות אדומים גדולים ועסיסיים, מתוקים. יבול אביבי.",org:"raspberry",gq:"פטל אדום raspberry"},
       {l:"פטל בויסן",m:[5,6],c:"#6A1B9A",d:"בויסנברי — הכלאת פטל-אוכמנית. פרי גדול סגול-בורדו, חמצמץ-מתוק עמוק. ארומטי במיוחד.",org:"boysenberry",gq:"boysenberry"}]},
-  {id:"tropical",n:"טרופיים נדירים",e:"🌴",v:"צ׳ה, גרומיצ׳ומה, פיטנגו, פיג׳ויה, גבוטיקבה, קרמבולה, קניסטל, תפוח הכוכב, ספודילה, תפוח ורד, אסרולה, אמברלה, וואמפי, ביגניי, פלסה, ווטר ברי, קוקולובה, אינגה, סידר ביי, גרגר פנמה, קטמבילה, יאנג מיי, ג׳קפרוט, ריו קפולין, ריו גרנדה, אימבה",
+  {id:"tropical",n:"טרופיים",e:"🌴",v:"צ׳ה, גרומיצ׳ומה, פיטנגו, פיג׳ויה, גבוטיקבה, קרמבולה, קניסטל, תפוח הכוכב, ספודילה, תפוח ורד, אסרולה, אמברלה, וואמפי, ביגניי, פלסה, ווטר ברי, קוקולובה, אינגה, סידר ביי, גרגר פנמה, קטמבילה, יאנג מיי, ג׳קפרוט, ריו קפולין, ריו גרנדה, אימבה",
     care:[{t:"planting",l:"שתילה",m:[4,5]},{t:"pruning",l:"גיזום עיצוב",m:[2,3,4]},{t:"propagate",l:"הברכות אוויר",m:[4,5,6]}],
     harvest:[
       {l:"פיטנגו",m:[4,5,6,7,9,10],c:"#E53935",d:"דובדבן ברזילאי. פרי מצולע אדום, חמצמץ-מתוק. בשרון ייתכנו גל אביב וגל סתיו.",org:"pitanga",gq:"פיטנגו pitanga surinam cherry"},
@@ -704,7 +704,7 @@ function App(){
               if(actFilter&&actFilter!==k)return null;
               // collect every (category, action) of this type
               const rows=[];
-              filtered.forEach(cat=>cat.care.forEach(a=>{if(a.t===k)separateCareNames(cat.n).forEach(n=>rows.push({cat:{...cat,n},a}));}));
+              filtered.filter(cat=>cat.id!=="nuts").forEach(cat=>cat.care.forEach(a=>{if(a.t===k)separateCareNames(cat.n).forEach(n=>rows.push({cat:{...cat,n},a}));}));
               if(!rows.length)return null;
               const fakeCat={id:"act-"+k,n:`${info.icon} ${info.l}`,e:""};
               return <CatSection key={k} cat={fakeCat} count={rows.length}>
@@ -730,7 +730,7 @@ function App(){
                 const groups=Object.entries(careTypes).map(([k,info])=>{
                   if(actFilter&&actFilter!==k)return null;
                   const trees=[];
-                  filtered.forEach(cat=>cat.care.forEach(a=>{if(a.t===k&&a.m.includes(selMonth))separateCareNames(cat.n).forEach(n=>trees.push(n+(careExtra(a.l,info.l)?" ("+careExtra(a.l,info.l)+")":"")));}));
+                  filtered.filter(cat=>cat.id!=="nuts").forEach(cat=>cat.care.forEach(a=>{if(a.t===k&&a.m.includes(selMonth))separateCareNames(cat.n).forEach(n=>trees.push(n+(careExtra(a.l,info.l)?" ("+careExtra(a.l,info.l)+")":"")));}));
                   return trees.length?{k,info,trees}:null;
                 }).filter(Boolean);
                 if(!groups.length)return <p style={{textAlign:"center",color:"#AAA",fontSize:13,marginTop:20}}>אין טיפולים ב{MF[selMonth-1]}</p>;
