@@ -468,7 +468,7 @@ function Bar({label,months,color,hovered,onHover,uid,onClick,clickable}){
         onMouseEnter={()=>onHover(uid)} onMouseLeave={()=>onHover(null)}
         style={{fontSize:10,color,fontWeight:600,whiteSpace:"normal",overflowWrap:"anywhere",lineHeight:"14px",minHeight:30,padding:"2px 4px 2px 2px",display:"flex",alignItems:"center",
           cursor:"pointer",textDecoration:clickable?"underline dotted":"none",textUnderlineOffset:3}}>
-        {cleanVarietyName(label)}{clickable?" ⓘ":""}
+        {cleanVarietyName(label)}
       </div>
       {Array.from({length:12},(_,i)=>i+1).map(m=>{
         const on=months.includes(m),pv=months.includes(m===1?12:m-1),nx=months.includes(m===12?1:m+1);
@@ -749,7 +749,7 @@ function App(){
                       <span style={{fontSize:15}}>{cat.e}</span><span style={{fontSize:13,fontWeight:700}}>{cat.n}</span>
                     </div>
                     {cat.harvestActs.map((h,i)=>(<div key={i} onClick={()=>setModal({item:h,emoji:cat.e,cid:cat.id})} style={{display:"flex",alignItems:"center",gap:6,marginBottom:3,cursor:"pointer"}}>
-                      <div style={{width:4,height:18,borderRadius:2,background:h.c,flexShrink:0}}/><span style={{fontSize:12,fontWeight:400,textDecoration:"underline dotted",textUnderlineOffset:3}}>{cleanVarietyName(h.l)} ⓘ</span>
+                      <div style={{width:4,height:18,borderRadius:2,background:h.c,flexShrink:0}}/><span style={{fontSize:12,fontWeight:400,textDecoration:"underline dotted",textUnderlineOffset:3}}>{cleanVarietyName(h.l)}</span>
                     </div>))}
                   </div>))
                 : <p style={{textAlign:"center",color:"#AAA",fontSize:13,marginTop:20}}>אין קטיף ב{MF[selMonth-1]}</p>)}
