@@ -45,6 +45,8 @@ const MF=["ינואר","פברואר","מרץ","אפריל","מאי","יוני",
 const NOW=new Date().getMonth()+1;
 const nrm=x=>x.replace(/[׳’`]/g,"'").replace(/^\d+\s+/,"").replace(/\s+/g," ").trim();
 const cleanVarietyName=x=>x.replace(/\s*\([^)]*\)/g,"").replace(/\s{2,}/g," ").trim();
+const cleanCareName=x=>x.startsWith("מלכודות")?"מלכודות":x.startsWith("דילול")?"דילול":x==="גיזום חורפי"?"גיזום":x;
+const careExtra=(label,base)=>{const clean=cleanCareName(label);return clean===base?"":clean.replace(base,"").trim();};
 const seasonStr=m=>{const s=m.map(x=>MF[x-1]);return s.length<=2?s.join(", "):`${s[0]}–${s[s.length-1]}`;};
 const ORG="https://www.organi-co.co.il/growing/";
 const gImg=q=>`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q)}`;
@@ -61,7 +63,7 @@ const EXTS=["jpg","jpeg","png","webp"];
 const careTypes={
   pruning:{l:"גיזום",icon:"✂️",c:"#2D6A3F"},
   planting:{l:"שתילה",icon:"🌳",c:"#1B5E20"},
-  traps:{l:"מלכודות/פיתיון",icon:"🪤",c:"#7B5EA7"},
+  traps:{l:"מלכודות",icon:"🪤",c:"#7B5EA7"},
   girdle:{l:"חיגור",icon:"🔪",c:"#D4692A"},
   whitewash:{l:"צביעת לובן",icon:"🖌️",c:"#B8A070"},
   thin:{l:"דילול",icon:"✋",c:"#C47A9B"},
@@ -705,7 +707,7 @@ function App(){
               if(!rows.length)return null;
               const fakeCat={id:"act-"+k,n:`${info.icon} ${info.l}`,e:""};
               return <CatSection key={k} cat={fakeCat} count={rows.length}>
-                {rows.map((r,i)=><Bar key={i} label={`${r.cat.e} ${r.cat.n}${r.a.l!==info.l?" · "+r.a.l.replace(info.l,"").trim():""}`} months={r.a.m} color={info.c} uid={`${k}-${i}`} hovered={hovered} onHover={setHovered} clickable={false}/>)}
+                {rows.map((r,i)=><Bar key={i} label={`${r.cat.e} ${r.cat.n}${careExtra(r.a.l,info.l)?" · "+careExtra(r.a.l,info.l):""}`} months={r.a.m} color={info.c} uid={`${k}-${i}`} hovered={hovered} onHover={setHovered} clickable={false}/>)}
               </CatSection>;
             })
           : filtered.map(cat=>{
@@ -727,7 +729,7 @@ function App(){
                 const groups=Object.entries(careTypes).map(([k,info])=>{
                   if(actFilter&&actFilter!==k)return null;
                   const trees=[];
-                  filtered.forEach(cat=>cat.care.forEach(a=>{if(a.t===k&&a.m.includes(selMonth))trees.push(cat.n+(a.l!==info.l?" ("+a.l.replace(info.l,"").trim()+")":""));}));
+                  filtered.forEach(cat=>cat.care.forEach(a=>{if(a.t===k&&a.m.includes(selMonth))trees.push(cat.n+(careExtra(a.l,info.l)?" ("+careExtra(a.l,info.l)+")":""));}));
                   return trees.length?{k,info,trees}:null;
                 }).filter(Boolean);
                 if(!groups.length)return <p style={{textAlign:"center",color:"#AAA",fontSize:13,marginTop:20}}>אין טיפולים ב{MF[selMonth-1]}</p>;
