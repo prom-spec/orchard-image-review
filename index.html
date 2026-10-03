@@ -44,7 +44,6 @@ const M=["ינו","פבר","מרץ","אפר","מאי","יוני","יולי","א�
 const MF=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 const NOW=new Date().getMonth()+1;
 const nrm=x=>x.replace(/[׳’`]/g,"'").replace(/^\d+\s+/,"").replace(/\s+/g," ").trim();
-const displayName=x=>x.replace(/\s*\([^)]*\)/g,"").replace(/\s{2,}/g," ").trim();
 const seasonStr=m=>{const s=m.map(x=>MF[x-1]);return s.length<=2?s.join(", "):`${s[0]}–${s[s.length-1]}`;};
 const ORG="https://www.organi-co.co.il/growing/";
 const gImg=q=>`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q)}`;
@@ -446,7 +445,7 @@ function VarietyModal({item,catEmoji,cid,onClose}){
             </div>
             <div style={{fontSize:10,color:"#999",marginTop:4}}>בגוגל: לחיצה ימנית על תמונה ← "העתק כתובת תמונה"</div>
           </div>}
-          <div className="modal-title">{displayName(item.l)}</div>
+          <div className="modal-title">{item.l}</div>
           {item.m&&item.m.length>0&&<div className="modal-season">🗓 עונת קטיף: {seasonStr(item.m)}</div>}
           <div className="modal-desc">{item.d}</div>
           <div style={{display:"flex",flexWrap:"wrap",gap:"4px 14px"}}>
@@ -468,7 +467,7 @@ function Bar({label,months,color,hovered,onHover,uid,onClick,clickable}){
         onMouseEnter={()=>onHover(uid)} onMouseLeave={()=>onHover(null)}
         style={{fontSize:10,color,fontWeight:600,whiteSpace:"normal",overflowWrap:"anywhere",lineHeight:"14px",minHeight:30,padding:"2px 4px 2px 2px",display:"flex",alignItems:"center",
           cursor:"pointer",textDecoration:clickable?"underline dotted":"none",textUnderlineOffset:3}}>
-        {displayName(label)}{clickable?" ⓘ":""}
+        {label}{clickable?" ⓘ":""}
       </div>
       {Array.from({length:12},(_,i)=>i+1).map(m=>{
         const on=months.includes(m),pv=months.includes(m===1?12:m-1),nx=months.includes(m===12?1:m+1);
@@ -727,7 +726,7 @@ function App(){
                 const groups=Object.entries(careTypes).map(([k,info])=>{
                   if(actFilter&&actFilter!==k)return null;
                   const trees=[];
-                  filtered.forEach(cat=>cat.care.forEach(a=>{if(a.t===k&&a.m.includes(selMonth))trees.push(displayName(cat.n+(a.l!==info.l?" ("+a.l.replace(info.l,"").trim()+")":""));}));
+                  filtered.forEach(cat=>cat.care.forEach(a=>{if(a.t===k&&a.m.includes(selMonth))trees.push(cat.n+(a.l!==info.l?" ("+a.l.replace(info.l,"").trim()+")":""));}));
                   return trees.length?{k,info,trees}:null;
                 }).filter(Boolean);
                 if(!groups.length)return <p style={{textAlign:"center",color:"#AAA",fontSize:13,marginTop:20}}>אין טיפולים ב{MF[selMonth-1]}</p>;
@@ -749,7 +748,7 @@ function App(){
                       <span style={{fontSize:15}}>{cat.e}</span><span style={{fontSize:13,fontWeight:700}}>{cat.n}</span>
                     </div>
                     {cat.harvestActs.map((h,i)=>(<div key={i} onClick={()=>setModal({item:h,emoji:cat.e,cid:cat.id})} style={{display:"flex",alignItems:"center",gap:6,marginBottom:3,cursor:"pointer"}}>
-                      <div style={{width:4,height:18,borderRadius:2,background:h.c,flexShrink:0}}/><span style={{fontSize:12,fontWeight:400,textDecoration:"underline dotted",textUnderlineOffset:3}}>{displayName(h.l)} ⓘ</span>
+                      <div style={{width:4,height:18,borderRadius:2,background:h.c,flexShrink:0}}/><span style={{fontSize:12,fontWeight:400,textDecoration:"underline dotted",textUnderlineOffset:3}}>{h.l} ⓘ</span>
                     </div>))}
                   </div>))
                 : <p style={{textAlign:"center",color:"#AAA",fontSize:13,marginTop:20}}>אין קטיף ב{MF[selMonth-1]}</p>)}
