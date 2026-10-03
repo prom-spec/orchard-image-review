@@ -178,7 +178,7 @@ const cats=[
   {id:"loquat",n:"שסק",e:"🟤",v:"שסק",
     care:[{t:"planting",l:"שתילה",m:[3,4,10,11]},{t:"pruning",l:"גיזום אחרי קטיף",m:[5,6]},{t:"thin",l:"דילול אשכולות",m:[11,12]}],
     harvest:[{l:"שסק",m:[3,4,5],c:"#FB8C00",d:"פרי אביבי ייחודי. בשר כתום, מתוק-חמצמץ, עסיסי. פורח בחורף, מבשיל באביב.",org:"loquat",gq:"שסק loquat"}]},
-  {id:"cherry",n:"גודגדן / דובדבן",e:"🍒",v:"גודגדן, דובדבן (? — שעות קור נמוכות בשרון)",
+  {id:"cherry",n:"גודגדן / דובדבן",e:"🍒",v:"גודגדן, דובדבן",
     care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום חורפי",m:[12,1,2]},{t:"traps",l:"מלכודות זבוב ים תיכוני",m:[4,5]}],
     harvest:[
       {l:"גודגדן",m:[5,6],c:"#C62828",d:"שזיף-דובדבן קטן ומתוק. פרי בגודל דובדבן, אדום-צהוב. קל לגידול בשרון.",org:"myrobalan-plum",gq:"גודגדן cherry plum"},
@@ -196,7 +196,7 @@ const cats=[
       {l:"פקאן צ׳וקטו",m:[10,11],c:"#795548",d:"Choctaw — מהזנים הגדולים. קליפה דקה, טעם מעולה.",org:"pecan",gq:"פקאן צ׳וקטו choctaw pecan"},
       {l:"פקאן מהן",m:[10,11],c:"#4E342E",d:"Mahan — אגוז ארוך ומרשים, מזן אמצע־עונה.",org:"pecan",gq:"Mahan pecan"},
       {l:"פקאן מוהוק",m:[10,11],c:"#5D4037",d:"Mohawk — אגוז גדול עם קליפה דקה במיוחד.",org:"pecan",gq:"Mohawk pecan"}]},
-  {id:"nuts",n:"אגוזים אחרים",e:"🥜",v:"אגוז מלך (קליפורניה), אגוז שחור, מקדמיה, אלת פיסטוק, מלבר, ערמון",
+  {id:"nuts",n:"אגוזים אחרים",e:"🥜",v:"אגוז מלך, אגוז שחור, מקדמיה, אלת פיסטוק, מלבר, ערמון",
     care:[{t:"planting",l:"שתילה",m:[12,1,2]},{t:"pruning",l:"גיזום אגוז מלך / קליפורניה",m:[1,2]},{t:"pruning",l:"גיזום מקדמיה",m:[8,9]}],
     harvest:[
       {l:"מקדמיה",m:[7,8],c:"#8D6E63",d:"אגוז אוסטרלי יוקרתי. קליפה קשה מאוד, גרעין שמנוני ועדין. טעם חמאתי.",org:"macadamia",gq:"מקדמיה macadamia nuts"},
@@ -464,13 +464,13 @@ function Bar({label,months,color,hovered,onHover,uid,onClick,clickable}){
     <div style={{display:"grid",gridTemplateColumns:"130px repeat(12,1fr)",marginBottom:3,opacity:dim?0.15:1,transition:"opacity 0.12s"}}>
       <div onClick={()=>{if(clickable&&onClick)onClick();else onHover(uid===hovered?null:uid)}}
         onMouseEnter={()=>onHover(uid)} onMouseLeave={()=>onHover(null)}
-        style={{fontSize:10,color,fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",lineHeight:"18px",paddingLeft:2,
+        style={{fontSize:10,color,fontWeight:600,whiteSpace:"normal",overflowWrap:"anywhere",lineHeight:"14px",minHeight:30,padding:"2px 4px 2px 2px",display:"flex",alignItems:"center",
           cursor:"pointer",textDecoration:clickable?"underline dotted":"none",textUnderlineOffset:3}}>
         {label}{clickable?" ⓘ":""}
       </div>
       {Array.from({length:12},(_,i)=>i+1).map(m=>{
         const on=months.includes(m),pv=months.includes(m===1?12:m-1),nx=months.includes(m===12?1:m+1);
-        return(<div key={m} style={{height:18,display:"flex",alignItems:"center",padding:"0 0.5px",position:"relative"}}>
+        return(<div key={m} style={{minHeight:30,display:"flex",alignItems:"center",padding:"0 0.5px",position:"relative"}}>
           {m===NOW&&<div style={{position:"absolute",top:0,bottom:0,left:"50%",width:1.5,background:"rgba(45,106,63,0.25)",zIndex:0}}/>}
           {on&&<div style={{width:"100%",height:13,background:color,opacity:0.85,borderRadius:`${on&&!pv?"0 5px 5px 0":"0"} ${on&&!nx?"5px 0 0 5px":"0"}`,zIndex:1}}/>}
         </div>);
