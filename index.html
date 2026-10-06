@@ -588,23 +588,22 @@ const mapTreeCount=cell=>{
 const totalTrees=()=>MAP_A.flat().reduce((sum,cell)=>sum+mapTreeCount(cell),0)+B_WL.length+B_WI.length+B_EIN.length+B_EOUT.length;
 
 function Cell({name,search,span,small,pos,onPick,coord,onCoord}){
-  const hold=useRef(null),longPress=useRef(false);
+  const clickTimer=useRef(null);
   const path=name===P,cellName=path?"":name;
   const hit=search&&cellName&&cellName.includes(search);
   const dim=search&&!hit;
-  const stopHold=()=>{if(hold.current){clearTimeout(hold.current);hold.current=null;}};
-  const startHold=()=>{if(!coord)return;longPress.current=false;hold.current=setTimeout(()=>{longPress.current=true;onCoord&&onCoord(coord);},550);};
-  const click=()=>{if(longPress.current){longPress.current=false;return;}if(cellName&&onPick)onPick(cellName);};
+  const click=()=>{if(clickTimer.current)return;clickTimer.current=setTimeout(()=>{if(cellName&&onPick)onPick(cellName);clickTimer.current=null;},250);};
+  const doubleClick=e=>{e.preventDefault();if(clickTimer.current){clearTimeout(clickTimer.current);clickTimer.current=null;}if(coord&&onCoord)onCoord(coord);};
   return <div style={{gridColumn:span?`span ${span}`:undefined,minHeight:34,padding:"3px 2px",fontSize:small?9.5:10.5,lineHeight:1.2,
     display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",direction:"rtl",
     background:path?"#CFCFCF":cellName?tint(cellName):"#fff",border:hit?"2px solid #C44D2B":"1px solid #fff",borderRadius:4,
     opacity:dim?0.3:1,fontWeight:hit?700:400,cursor:coord?"pointer":"default",userSelect:"none",WebkitUserSelect:"none",...pos}}
-    onPointerDown={startHold} onPointerUp={stopHold} onPointerLeave={stopHold} onPointerCancel={stopHold} onContextMenu={e=>e.preventDefault()} onClick={click}>{cellName}</div>;
+    onContextMenu={e=>e.preventDefault()} onClick={click} onDoubleClick={doubleClick}>{cellName}</div>;
 }
 
 function MapA({search,onPick,onCoord}){
   return <div>
-    <p style={{fontSize:10,color:"#9A958D",textAlign:"center",marginBottom:6}}>אפור = שביל · לחץ על עץ לסיכום · לחיצה ארוכה מציגה משבצת</p>
+    <p style={{fontSize:10,color:"#9A958D",textAlign:"center",marginBottom:6}}>אפור = שביל · לחץ על עץ לסיכום · דאבל־קליק מציג משבצת</p>
     <div style={{overflowX:"auto"}}>
       <div dir="rtl" style={{display:"grid",gridTemplateColumns:"repeat(14,minmax(62px,1fr))",gap:2,minWidth:14*64,background:"#E8E2D6",padding:2,borderRadius:6}}>
         {MAP_A.map((row,ri)=>{
@@ -619,17 +618,16 @@ function MapA({search,onPick,onCoord}){
 }
 
 function MapTop({txt,col,bg,pick,search,onPick,coord,onCoord}){
-  const hold=useRef(null),longPress=useRef(false),hit=search&&txt.includes(search);
-  const stop=()=>{if(hold.current){clearTimeout(hold.current);hold.current=null;}};
-  const start=()=>{longPress.current=false;hold.current=setTimeout(()=>{longPress.current=true;onCoord(coord);},550);};
-  const click=()=>{if(longPress.current){longPress.current=false;return;}if(pick)onPick(pick);};
-  return <div style={{gridColumn:col,gridRow:1,padding:"6px 4px",fontSize:10.5,lineHeight:1.3,textAlign:"center",background:bg,borderRadius:4,direction:"rtl",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:hit?700:400,border:hit?"2px solid #C44D2B":"1px solid #fff",opacity:search&&!hit?0.3:1,cursor:"pointer",userSelect:"none",WebkitUserSelect:"none"}} onPointerDown={start} onPointerUp={stop} onPointerLeave={stop} onPointerCancel={stop} onContextMenu={e=>e.preventDefault()} onClick={click}>{txt}</div>;
+  const clickTimer=useRef(null),hit=search&&txt.includes(search);
+  const click=()=>{if(clickTimer.current)return;clickTimer.current=setTimeout(()=>{if(pick)onPick(pick);clickTimer.current=null;},250);};
+  const doubleClick=e=>{e.preventDefault();if(clickTimer.current){clearTimeout(clickTimer.current);clickTimer.current=null;}onCoord(coord);};
+  return <div style={{gridColumn:col,gridRow:1,padding:"6px 4px",fontSize:10.5,lineHeight:1.3,textAlign:"center",background:bg,borderRadius:4,direction:"rtl",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:hit?700:400,border:hit?"2px solid #C44D2B":"1px solid #fff",opacity:search&&!hit?0.3:1,cursor:"pointer",userSelect:"none",WebkitUserSelect:"none"}} onContextMenu={e=>e.preventDefault()} onClick={click} onDoubleClick={doubleClick}>{txt}</div>;
 }
 
 function MapB({search,onPick,onCoord}){
   const place=(list,col,row0)=>list.map((n,i)=><Cell key={col+"-"+i} name={n} search={search} onPick={onPick} coord={`שטח ב · משבצת ${row0+i},${col}`} onCoord={onCoord} small pos={{gridColumn:col,gridRow:row0+i,minHeight:28}}/>);
   return <div>
-    <p style={{fontSize:10,color:"#9A958D",textAlign:"center",marginBottom:6}}>כמו במפה המקורית · הגדר למעלה · כל תא = עץ אחד · לחיצה ארוכה מציגה משבצת</p>
+    <p style={{fontSize:10,color:"#9A958D",textAlign:"center",marginBottom:6}}>כמו במפה המקורית · הגדר למעלה · כל תא = עץ אחד · דאבל־קליק מציג משבצת</p>
     <div style={{overflowX:"auto"}}>
       <div dir="ltr" style={{display:"grid",gridTemplateColumns:"1fr 1fr 0.6fr 1fr 1fr",gap:2,minWidth:360,background:"#F7F5F0",padding:2,borderRadius:6}}>
         <MapTop txt="🍇 גפן על הגדר: עין ורד (5 ייחורים) · קרימזון ×2 · איזבלה ×2" col="1 / 3" bg="#EDE7F6" search={search} onPick={onPick} coord="שטח ב · משבצת 1,1–2" onCoord={onCoord}/>
