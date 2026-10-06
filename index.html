@@ -550,7 +550,10 @@ const P="#"; // path
 const PATH_BG="repeating-linear-gradient(45deg,#F1EEE6,#F1EEE6 6px,#F7F5F0 6px,#F7F5F0 12px)";
 const PLANNED_TREES=new Set(["ערמון"]);
 const planned=n=>PLANNED_TREES.has(nrm(n));
-const tileBg=n=>planned(n)?`repeating-linear-gradient(45deg,rgba(255,255,255,.35),rgba(255,255,255,.35) 6px,rgba(0,0,0,.08) 6px,rgba(0,0,0,.08) 12px),${tint(n)}`:tint(n);
+const PLANNED_B_NAMES=[/^אגוז שחור$/, /^אגס/, /^שזיף מטלי$/, /^פקאן אפאצ'י$/, /^פקאן קפפר$/, /^תפוח זהוב$/, /^אלת פיסטוק$/, /^תפוח גאלה$/];
+const PLANNED_B_CELLS=new Set(["A18","A20"]);
+const plannedB=(n,coord)=>planned(n)||PLANNED_B_CELLS.has(coord)||PLANNED_B_NAMES.some(re=>re.test(n));
+const tileBg=(n,isPlanned=planned(n))=>isPlanned?`repeating-linear-gradient(45deg,rgba(255,255,255,.35),rgba(255,255,255,.35) 6px,rgba(0,0,0,.08) 6px,rgba(0,0,0,.08) 12px),${tint(n)}`:tint(n);
 const gridCoord=(row,col,span=1)=>{const letter=String.fromCharCode(64+col),end=String.fromCharCode(64+col+span-1);return span>1?`${letter}${row}–${end}${row}`:`${letter}${row}`;};
 
 /* שטח א — rows as in the sheet; each row lists cells c1..c14 (right to left). {n,s}=span */
@@ -592,7 +595,7 @@ const mapTreeCount=cell=>{
 };
 const totalTrees=()=>MAP_A.flat().reduce((sum,cell)=>sum+mapTreeCount(cell),0)+B_WL.length+B_WI.length+B_EIN.length+B_EOUT.length;
 
-function Cell({name,search,span,small,pos,onPick,coord}){
+function Cell({name,search,span,small,pos,onPick,coord,isPlanned}){
   const clickTimer=useRef(null),coordTimer=useRef(null),[showCoord,setShowCoord]=useState(false);
   const path=name===P,cellName=path?"":name;
   const hit=search&&cellName&&cellName.includes(search);
@@ -601,7 +604,7 @@ function Cell({name,search,span,small,pos,onPick,coord}){
   const doubleClick=e=>{e.preventDefault();if(clickTimer.current){clearTimeout(clickTimer.current);clickTimer.current=null;}if(coord){setShowCoord(true);clearTimeout(coordTimer.current);coordTimer.current=setTimeout(()=>setShowCoord(false),2000);}};
   return <div style={{gridColumn:span?`span ${span}`:undefined,minHeight:34,padding:"3px 2px",fontSize:small?9.5:10.5,lineHeight:1.2,
     display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",direction:"rtl",
-    background:path?PATH_BG:cellName?tileBg(cellName):"#fff",border:hit?"2px solid #C44D2B":"1px solid #fff",borderRadius:4,
+    background:path?PATH_BG:cellName?tileBg(cellName,isPlanned):"#fff",border:hit?"2px solid #C44D2B":"1px solid #fff",borderRadius:4,
     opacity:dim?0.3:1,fontWeight:hit?700:400,cursor:coord?"pointer":"default",userSelect:"none",WebkitUserSelect:"none",...pos}}
     onContextMenu={e=>e.preventDefault()} onClick={click} onDoubleClick={doubleClick}>{showCoord?coord:cellName}</div>;
 }
@@ -612,7 +615,7 @@ function MapA({search,onPick}){
     <div style={{overflowX:"auto"}}>
       <div dir="rtl" style={{display:"grid",gridTemplateColumns:"repeat(14,minmax(62px,1fr))",gap:2,minWidth:14*64,background:"#E8E2D6",padding:2,borderRadius:6}}>
         {MAP_A.map((row,ri)=>{
-          let used=0;const cells=row.map((c,ci)=>{const o=typeof c==="object"?c:{n:c},col=used+1,span=o.s||1;used+=span;return <Cell key={ri+"-"+ci} name={o.n} span={o.s} search={search} onPick={onPick} coord={gridCoord(ri+1,col,span)} small/>;});
+          let used=0;const cells=row.map((c,ci)=>{const o=typeof c==="object"?c:{n:c},col=used+1,span=o.s||1;used+=span;return <Cell key={ri+"-"+ci} name={o.n} span={o.s} search={search} onPick={onPick} coord={gridCoord(ri+1,col,span)} isPlanned={planned(o.n)} small/>;});
           for(let k=used;k<14;k++)cells.push(<Cell key={ri+"-f"+k} name="" search={search} coord={gridCoord(ri+1,k+1)}/>);
           return cells;
         })}
@@ -630,7 +633,7 @@ function MapTop({txt,col,bg,pick,search,onPick,coord}){
 }
 
 function MapB({search,onPick}){
-  const place=(list,col,row0)=>list.map((n,i)=><Cell key={col+"-"+i} name={n} search={search} onPick={onPick} coord={gridCoord(row0+i,col)} small pos={{gridColumn:col,gridRow:row0+i,minHeight:28}}/>);
+  const place=(list,col,row0)=>list.map((n,i)=>{const coord=gridCoord(row0+i,col);return <Cell key={col+"-"+i} name={n} search={search} onPick={onPick} coord={coord} isPlanned={plannedB(n,coord)} small pos={{gridColumn:col,gridRow:row0+i,minHeight:28}}/>;});
   return <div>
     <p style={{fontSize:10,color:"#9A958D",textAlign:"center",marginBottom:6}}>כמו במפה המקורית · הגדר למעלה · כל תא = עץ אחד · דאבל־קליק מציג משבצת</p>
     <div style={{overflowX:"auto"}}>
