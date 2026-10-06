@@ -547,6 +547,7 @@ const TINTS=[
 ];
 const tint=n=>{for(const[r,c]of TINTS)if(r.test(n))return c;return "#E0F2F1";};
 const P="#"; // path
+const gridCoord=(row,col,span=1)=>{const letter=String.fromCharCode(64+col),end=String.fromCharCode(64+col+span-1);return span>1?`${letter}${row}–${end}${row}`:`${letter}${row}`;};
 
 /* שטח א — rows as in the sheet; each row lists cells c1..c14 (right to left). {n,s}=span */
 const MAP_A=[
@@ -587,28 +588,28 @@ const mapTreeCount=cell=>{
 };
 const totalTrees=()=>MAP_A.flat().reduce((sum,cell)=>sum+mapTreeCount(cell),0)+B_WL.length+B_WI.length+B_EIN.length+B_EOUT.length;
 
-function Cell({name,search,span,small,pos,onPick,coord,onCoord}){
-  const clickTimer=useRef(null);
+function Cell({name,search,span,small,pos,onPick,coord}){
+  const clickTimer=useRef(null),coordTimer=useRef(null),[showCoord,setShowCoord]=useState(false);
   const path=name===P,cellName=path?"":name;
   const hit=search&&cellName&&cellName.includes(search);
   const dim=search&&!hit;
   const click=()=>{if(clickTimer.current)return;clickTimer.current=setTimeout(()=>{if(cellName&&onPick)onPick(cellName);clickTimer.current=null;},250);};
-  const doubleClick=e=>{e.preventDefault();if(clickTimer.current){clearTimeout(clickTimer.current);clickTimer.current=null;}if(coord&&onCoord)onCoord(coord);};
+  const doubleClick=e=>{e.preventDefault();if(clickTimer.current){clearTimeout(clickTimer.current);clickTimer.current=null;}if(coord){setShowCoord(true);clearTimeout(coordTimer.current);coordTimer.current=setTimeout(()=>setShowCoord(false),2000);}};
   return <div style={{gridColumn:span?`span ${span}`:undefined,minHeight:34,padding:"3px 2px",fontSize:small?9.5:10.5,lineHeight:1.2,
     display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",direction:"rtl",
     background:path?"#CFCFCF":cellName?tint(cellName):"#fff",border:hit?"2px solid #C44D2B":"1px solid #fff",borderRadius:4,
     opacity:dim?0.3:1,fontWeight:hit?700:400,cursor:coord?"pointer":"default",userSelect:"none",WebkitUserSelect:"none",...pos}}
-    onContextMenu={e=>e.preventDefault()} onClick={click} onDoubleClick={doubleClick}>{cellName}</div>;
+    onContextMenu={e=>e.preventDefault()} onClick={click} onDoubleClick={doubleClick}>{showCoord?coord:cellName}</div>;
 }
 
-function MapA({search,onPick,onCoord}){
+function MapA({search,onPick}){
   return <div>
     <p style={{fontSize:10,color:"#9A958D",textAlign:"center",marginBottom:6}}>אפור = שביל · לחץ על עץ לסיכום · דאבל־קליק מציג משבצת</p>
     <div style={{overflowX:"auto"}}>
       <div dir="rtl" style={{display:"grid",gridTemplateColumns:"repeat(14,minmax(62px,1fr))",gap:2,minWidth:14*64,background:"#E8E2D6",padding:2,borderRadius:6}}>
         {MAP_A.map((row,ri)=>{
-          let used=0;const cells=row.map((c,ci)=>{const o=typeof c==="object"?c:{n:c},col=used+1,span=o.s||1;used+=span;const end=col+span-1;return <Cell key={ri+"-"+ci} name={o.n} span={o.s} search={search} onPick={onPick} coord={`שטח א · משבצת ${ri+1},${col}${span>1?`–${end}`:""}`} onCoord={onCoord} small/>;});
-          for(let k=used;k<14;k++)cells.push(<Cell key={ri+"-f"+k} name="" search={search} coord={`שטח א · משבצת ${ri+1},${k+1}`} onCoord={onCoord}/>);
+          let used=0;const cells=row.map((c,ci)=>{const o=typeof c==="object"?c:{n:c},col=used+1,span=o.s||1;used+=span;return <Cell key={ri+"-"+ci} name={o.n} span={o.s} search={search} onPick={onPick} coord={gridCoord(ri+1,col,span)} small/>;});
+          for(let k=used;k<14;k++)cells.push(<Cell key={ri+"-f"+k} name="" search={search} coord={gridCoord(ri+1,k+1)}/>);
           return cells;
         })}
       </div>
@@ -617,22 +618,22 @@ function MapA({search,onPick,onCoord}){
   </div>;
 }
 
-function MapTop({txt,col,bg,pick,search,onPick,coord,onCoord}){
-  const clickTimer=useRef(null),hit=search&&txt.includes(search);
+function MapTop({txt,col,bg,pick,search,onPick,coord}){
+  const clickTimer=useRef(null),coordTimer=useRef(null),[showCoord,setShowCoord]=useState(false),hit=search&&txt.includes(search);
   const click=()=>{if(clickTimer.current)return;clickTimer.current=setTimeout(()=>{if(pick)onPick(pick);clickTimer.current=null;},250);};
-  const doubleClick=e=>{e.preventDefault();if(clickTimer.current){clearTimeout(clickTimer.current);clickTimer.current=null;}onCoord(coord);};
-  return <div style={{gridColumn:col,gridRow:1,padding:"6px 4px",fontSize:10.5,lineHeight:1.3,textAlign:"center",background:bg,borderRadius:4,direction:"rtl",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:hit?700:400,border:hit?"2px solid #C44D2B":"1px solid #fff",opacity:search&&!hit?0.3:1,cursor:"pointer",userSelect:"none",WebkitUserSelect:"none"}} onContextMenu={e=>e.preventDefault()} onClick={click} onDoubleClick={doubleClick}>{txt}</div>;
+  const doubleClick=e=>{e.preventDefault();if(clickTimer.current){clearTimeout(clickTimer.current);clickTimer.current=null;}setShowCoord(true);clearTimeout(coordTimer.current);coordTimer.current=setTimeout(()=>setShowCoord(false),2000);};
+  return <div style={{gridColumn:col,gridRow:1,padding:"6px 4px",fontSize:10.5,lineHeight:1.3,textAlign:"center",background:bg,borderRadius:4,direction:"rtl",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:hit?700:400,border:hit?"2px solid #C44D2B":"1px solid #fff",opacity:search&&!hit?0.3:1,cursor:"pointer",userSelect:"none",WebkitUserSelect:"none"}} onContextMenu={e=>e.preventDefault()} onClick={click} onDoubleClick={doubleClick}>{showCoord?coord:txt}</div>;
 }
 
-function MapB({search,onPick,onCoord}){
-  const place=(list,col,row0)=>list.map((n,i)=><Cell key={col+"-"+i} name={n} search={search} onPick={onPick} coord={`שטח ב · משבצת ${row0+i},${col}`} onCoord={onCoord} small pos={{gridColumn:col,gridRow:row0+i,minHeight:28}}/>);
+function MapB({search,onPick}){
+  const place=(list,col,row0)=>list.map((n,i)=><Cell key={col+"-"+i} name={n} search={search} onPick={onPick} coord={gridCoord(row0+i,col)} small pos={{gridColumn:col,gridRow:row0+i,minHeight:28}}/>);
   return <div>
     <p style={{fontSize:10,color:"#9A958D",textAlign:"center",marginBottom:6}}>כמו במפה המקורית · הגדר למעלה · כל תא = עץ אחד · דאבל־קליק מציג משבצת</p>
     <div style={{overflowX:"auto"}}>
       <div dir="ltr" style={{display:"grid",gridTemplateColumns:"1fr 1fr 0.6fr 1fr 1fr",gap:2,minWidth:360,background:"#F7F5F0",padding:2,borderRadius:6}}>
-        <MapTop txt="🍇 גפן על הגדר: עין ורד (5 ייחורים) · קרימזון ×2 · איזבלה ×2" col="1 / 3" bg="#EDE7F6" search={search} onPick={onPick} coord="שטח ב · משבצת 1,1–2" onCoord={onCoord}/>
-        <MapTop txt="ערמון" col={3} bg={tint("ערמון")} pick="ערמון" search={search} onPick={onPick} coord="שטח ב · משבצת 1,3" onCoord={onCoord}/>
-        <MapTop txt="🫐 פטל על הגדר: לנדאו ×2 · פריים ארק ×2 · רפאו ×2 · בויסן ×2" col="4 / 6" bg="#FCE4EC" search={search} onPick={onPick} coord="שטח ב · משבצת 1,4–5" onCoord={onCoord}/>
+        <MapTop txt="🍇 גפן על הגדר: עין ורד (5 ייחורים) · קרימזון ×2 · איזבלה ×2" col="1 / 3" bg="#EDE7F6" search={search} onPick={onPick} coord="A1–B1"/>
+        <MapTop txt="ערמון" col={3} bg={tint("ערמון")} pick="ערמון" search={search} onPick={onPick} coord="C1"/>
+        <MapTop txt="🫐 פטל על הגדר: לנדאו ×2 · פריים ארק ×2 · רפאו ×2 · בויסן ×2" col="4 / 6" bg="#FCE4EC" search={search} onPick={onPick} coord="D1–E1"/>
         <div style={{gridColumn:3,gridRow:"2 / span 32",background:"repeating-linear-gradient(45deg,#F1EEE6,#F1EEE6 6px,#F7F5F0 6px,#F7F5F0 12px)",borderRadius:4}}/>
         {place(B_WL,1,2)}{place(B_WI,2,2)}{place(B_EIN,4,3)}{place(B_EOUT,5,2)}
       </div>
@@ -648,7 +649,6 @@ function App(){
   const[hovered,setHovered]=useState(null);
   const[search,setSearch]=useState("");
   const[modal,setModal]=useState(null);
-  const[mapCoord,setMapCoord]=useState("");
 
   const filtered=useMemo(()=>{
     if(!search)return cats;
@@ -683,7 +683,7 @@ function App(){
       </div>
 
       <div style={{display:"flex",marginBottom:10,borderRadius:8,overflow:"hidden",border:"1px solid #D8D3CA"}}>
-        {[{id:"gantt",l:"📊 שנתי"},{id:"monthly",l:"📅 חודשי"},{id:"mapA",l:"🗺️ שטח א"},{id:"mapB",l:"🗺️ שטח ב"}].map(v=>(<button key={v.id} onClick={()=>{setView(v.id);setMapCoord("")}} style={{flex:1,padding:"8px 0",fontSize:12,fontWeight:600,border:"none",cursor:"pointer",background:view===v.id?"#2D6A3F":"#fff",color:view===v.id?"#fff":"#555"}}>{v.l}</button>))}
+        {[{id:"gantt",l:"📊 שנתי"},{id:"monthly",l:"📅 חודשי"},{id:"mapA",l:"🗺️ שטח א"},{id:"mapB",l:"🗺️ שטח ב"}].map(v=>(<button key={v.id} onClick={()=>setView(v.id)} style={{flex:1,padding:"8px 0",fontSize:12,fontWeight:600,border:"none",cursor:"pointer",background:view===v.id?"#2D6A3F":"#fff",color:view===v.id?"#fff":"#555"}}>{v.l}</button>))}
       </div>
 
       {!isMap&&<div style={{display:"flex",marginBottom:10,borderRadius:8,overflow:"hidden",border:"1px solid #D8D3CA"}}>
@@ -704,9 +704,8 @@ function App(){
         })}
       </div>}
 
-      {view==="mapA"&&<MapA search={search} onPick={pickTree} onCoord={setMapCoord}/>}
-      {view==="mapB"&&<MapB search={search} onPick={pickTree} onCoord={setMapCoord}/>}
-      {isMap&&mapCoord&&<div role="status" style={{margin:"8px 0",padding:"8px 10px",borderRadius:8,background:"#E8F3EA",color:"#245B32",fontWeight:700,textAlign:"center"}}>📍 {mapCoord}</div>}
+      {view==="mapA"&&<MapA search={search} onPick={pickTree}/>}
+      {view==="mapB"&&<MapB search={search} onPick={pickTree}/>}
 
       {view==="gantt"&&<div style={{overflowX:"auto"}}><div style={{minWidth:540}}>
         <MonthHeader/>
