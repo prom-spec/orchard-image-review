@@ -587,7 +587,7 @@ const MAP_A=[
 const dbl=(...ns)=>ns.flatMap(n=>[n,n]);
 const B_WL=[...dbl("אפרסק עודד","אפרסק סאמר סנו","נקטרינה לבנה","שזיף סנטה רוזה","תפוח פינק ליידי","דובדבן גודגדן"),
   ...dbl("משמש בלדי","אפרסמון סידלס","משמש רעננה","אפרסמון רוחו קרמבו","שזיף אוגדן","אפרסק פיתה","תפוח גאלה","אגס נאשי","נקטרינה צהובה","שזיף בלאק")];
-const B_WI=["אגוז שחור",...dbl("שזיף מטלי","אפרסמון שינשו","שזיף שגיב","אגס ספדונה","תפוח זהוב","אגס בלאדי")];
+const B_WI=[...dbl("שזיף מטלי","אפרסמון שינשו","שזיף שגיב","אגס ספדונה","תפוח זהוב","אגס בלאדי")];
 const B_EIN=dbl("אגוז מקדמיה","שקד אום אל פאחם","פקאן אפאצ'י","אגוז לו\"ז","אלת פיסטוק");
 const B_EOUT=[...dbl("פקאן צ'וקוטו","פקאן קפפר","פקאן מוהוק","אגוז קליפורניה"),
   ...dbl("פומלו","תפוז ניוהול","פומלית אדומה","אשכולית עליזה","קלמנטינה מיכל","תפוז ראוסטנברג","קלמנטינה אורה","פומלית","תפוז מורו","קלמנטינה אור","תפוז קרה קרה","שמוטי")];
@@ -646,7 +646,8 @@ function MapB({search,onPick}){
         <MapTop txt="🍇 גפן על הגדר: עין ורד (5 ייחורים) · קרימזון ×2 · איזבלה ×2" col="1 / 3" bg="#EDE7F6" search={search} onPick={onPick} coord="A1–B1"/>
         <MapTop txt="🫐 פטל על הגדר: לנדאו ×2 · פריים ארק ×2 · רפאו ×2 · בויסן ×2" col="4 / 6" bg="#FCE4EC" search={search} onPick={onPick} coord="D1–E1"/>
         <Cell name="ערמון" search={search} onPick={onPick} coord="C2" isPlanned={planned("ערמון")} small pos={{gridColumn:3,gridRow:2,minHeight:28}}/>
-        <div style={{gridColumn:3,gridRow:"3 / span 31",background:PATH_BG,borderRadius:4}}/>
+        <Cell name="אגוז שחור" search={search} onPick={onPick} coord="C3" isPlanned={plannedB("אגוז שחור","C3")} small pos={{gridColumn:3,gridRow:3,minHeight:28}}/>
+        <div style={{gridColumn:3,gridRow:"4 / span 30",background:PATH_BG,borderRadius:4}}/>
         {place(B_WL,1,2)}{place(B_WI,2,2)}{place(B_EIN,4,3)}{place(B_EOUT,5,2)}
       </div>
     </div>
