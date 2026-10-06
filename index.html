@@ -550,6 +550,9 @@ const P="#"; // path
 const PATH_BG="repeating-linear-gradient(45deg,#F1EEE6,#F1EEE6 6px,#F7F5F0 6px,#F7F5F0 12px)";
 const PLANNED_TREES=new Set(["ערמון"]);
 const planned=n=>PLANNED_TREES.has(nrm(n));
+const PLANNED_A_NAMES=[/^אגס \(לא סגור\)$/, /^גרומיצ'ומה$/, /^הרשקוביץ$/, /^אפרסמון שינשו$/, /^קניסטל$/, /^יאנג מיי$/, /^מנגו הרכבה$/, /^מנגו R2E2$/i, /^פקאן קפפר$/, /^גויבה ארגמנית$/];
+const PLANNED_A_CELLS=new Set(["A4","K5","L6","K11","K15","I11"]);
+const plannedA=(n,coord)=>planned(n)||PLANNED_A_CELLS.has(coord)||PLANNED_A_NAMES.some(re=>re.test(n));
 const PLANNED_B_NAMES=[/^אגוז שחור$/, /^אגס/, /^שזיף מטלי$/, /^פקאן אפאצ'י$/, /^פקאן קפפר$/, /^תפוח זהוב$/, /^אלת פיסטוק$/, /^תפוח גאלה$/];
 const PLANNED_B_CELLS=new Set(["A18","A20"]);
 const plannedB=(n,coord)=>planned(n)||PLANNED_B_CELLS.has(coord)||PLANNED_B_NAMES.some(re=>re.test(n));
@@ -615,7 +618,7 @@ function MapA({search,onPick}){
     <div style={{overflowX:"auto"}}>
       <div dir="rtl" style={{display:"grid",gridTemplateColumns:"repeat(14,minmax(62px,1fr))",gap:2,minWidth:14*64,background:"#E8E2D6",padding:2,borderRadius:6}}>
         {MAP_A.map((row,ri)=>{
-          let used=0;const cells=row.map((c,ci)=>{const o=typeof c==="object"?c:{n:c},col=used+1,span=o.s||1;used+=span;return <Cell key={ri+"-"+ci} name={o.n} span={o.s} search={search} onPick={onPick} coord={gridCoord(ri+1,col,span)} isPlanned={planned(o.n)} small/>;});
+          let used=0;const cells=row.map((c,ci)=>{const o=typeof c==="object"?c:{n:c},col=used+1,span=o.s||1,coord=gridCoord(ri+1,col,span);used+=span;return <Cell key={ri+"-"+ci} name={o.n} span={o.s} search={search} onPick={onPick} coord={coord} isPlanned={plannedA(o.n,coord)} small/>;});
           for(let k=used;k<14;k++)cells.push(<Cell key={ri+"-f"+k} name="" search={search} coord={gridCoord(ri+1,k+1)}/>);
           return cells;
         })}
