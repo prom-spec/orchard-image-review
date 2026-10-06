@@ -557,7 +557,7 @@ const PATH_BG="repeating-linear-gradient(45deg,#F1EEE6,#F1EEE6 6px,#F7F5F0 6px,#
 const PLANNED_TREES=new Set(["ערמון"]);
 const planned=n=>PLANNED_TREES.has(nrm(n));
 const PLANNED_A_NAMES=[/^אגס ספדונה$/, /^גרומיצ'ומה$/, /^הרשקוביץ$/, /^אפרסמון שינשו$/, /^קניסטל$/, /^יאנג מיי$/, /^מנגו הרכבה$/, /^מנגו R2E2$/i, /^פקאן קפפר$/, /^גויבה ארגמנית$/, /^תאנה קפריסאית$/];
-const PLANNED_A_CELLS=new Set(["A4","K5","L6","K11","K15","I11","F1","H2","G10","G11","L2"]);
+const PLANNED_A_CELLS=new Set(["A4","K5","L6","K11","K15","I11","F1","H2","G10","G11","L2","E17"]);
 const plannedA=(n,coord)=>planned(n)||PLANNED_A_CELLS.has(coord)||PLANNED_A_NAMES.some(re=>re.test(n));
 const PLANNED_B_NAMES=[/^אגוז שחור$/, /^אגס/, /^שזיף מטלי$/, /^פקאן אפאצ'י$/, /^פקאן קפפר$/, /^אגוז לוז$/, /^תפוח זהוב$/, /^אלת פיסטוק$/, /^תפוח גאלה$/];
 const PLANNED_B_CELLS=new Set(["A18","A20","A33"]);
