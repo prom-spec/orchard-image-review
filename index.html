@@ -560,8 +560,8 @@ const PLANNED_A_NAMES=[/^אגס ספדונה$/, /^גרומיצ'ומה$/, /^הר�
 const PLANNED_A_CELLS=new Set(["A4","K5","L6","K11","K15","I11","F1","H2","G10","G11","L2","E17"]);
 const plannedA=(n,coord)=>planned(n)||PLANNED_A_CELLS.has(coord)||PLANNED_A_NAMES.some(re=>re.test(n));
 const PLANNED_B_NAMES=[/^אגוז שחור$/, /^אגס/, /^שזיף מטלי$/, /^פקאן אפאצ'י$/, /^פקאן קפפר$/, /^אגוז לוז$/, /^תפוח זהוב$/, /^אלת פיסטוק$/, /^תפוח גאלה$/];
-const PLANNED_B_CELLS=new Set(["A18","A20","A33"]);
-const COMPLETED_B_CELLS=new Set(["E4","E5","A28","A29"]);
+const PLANNED_B_CELLS=new Set(["A15","A20","A33"]);
+const COMPLETED_B_CELLS=new Set(["E4","E5","A18","A28","A29"]);
 const plannedB=(n,coord)=>!COMPLETED_B_CELLS.has(coord)&&(planned(n)||PLANNED_B_CELLS.has(coord)||PLANNED_B_NAMES.some(re=>re.test(n)));
 const tileBg=(n,isPlanned=planned(n))=>isPlanned?`repeating-linear-gradient(45deg,rgba(255,255,255,.35),rgba(255,255,255,.35) 6px,rgba(0,0,0,.08) 6px,rgba(0,0,0,.08) 12px),${tint(n)}`:tint(n);
 const gridCoord=(row,col,span=1)=>{const letter=String.fromCharCode(64+col),end=String.fromCharCode(64+col+span-1);return span>1?`${letter}${row}–${end}${row}`:`${letter}${row}`;};
