@@ -114,7 +114,7 @@ const cats=[
       {l:"טנגו",m:[8,9],c:"#F4511E",d:"זן ישראלי עונת אמצע. פרי בינוני, מאוזן בין מתיקות לחמיצות.",org:"mango-tango",src:"https://www.organi-co.co.il/growing/mango-tango",gq:"מנגו טנגו"},
       {l:"גיילור",m:[7,8],c:"#FFB74D",d:"פרי בינוני-גדול, טעם עשיר. צבע צהוב-כתום.",org:"mango-gaylour",gq:"מנגו גיילור gaylour",src:"https://www.organi-co.co.il/product/mango-gaylour-sale"},
       {l:"פיור גולד",m:[8,9],c:"#FFCA28",d:"צהוב זהוב, מתוק, מעט סיבים. מראה מבריק ואטרקטיבי.",org:"mango",src:"https://www.organi-co.co.il/growing/mango-pure-gold",gq:"מנגו פיור גולד pure gold"},
-      {l:"מיה",m:[7,8],c:"#FB8C00",d:"זן ישראלי עונת אמצע-מאוחר. פרי בינוני, טעם מאוזן.",org:"mango",gq:"מנגו מיה"},
+      {l:"מאיה",m:[8],c:"#FB8C00",d:"זן ישראלי עונת אמצע-מאוחר. פרי בינוני, טעם מאוזן.",org:"mango",gq:"מנגו מאיה",src:"https://www.organi-co.co.il/growing/maya-mango"},
       {l:"מאגי",m:[8,9],c:"#D84315",d:"זן מאוחר. פרי בינוני-גדול, בשר כתום, מתוק ועסיסי. סוגר את העונה.",org:"mango",gq:"מנגו מאגי maggie"},
       {l:"קיט",m:[9,10,11],c:"#E65100",d:"הזן המאוחר ביותר. גדול מאוד, נשאר ירוק בשלות. בשר צהוב, מתוק, כמעט ללא סיבים. אחסון מצוין. חלון הבשלה מתועד: ספטמבר–נובמבר.",org:"keitt-mango",src:"https://www.organi-co.co.il/growing/keitt-mango",gq:"מנגו קיט keitt"}]},
   {id:"avocado",n:"אבוקדו",e:"🥑",v:"טיג, הס, פוארטה, מלומה, אטינגר, ריד, גליל, פינקרטון",
@@ -314,7 +314,7 @@ const EQROWS=[
 ["ניוהול (טבור)","navel orange","navel"],["פומלית","oroblanco sweetie","oroblanco|sweetie"],["פומלית אדומה","red pomelo","pomelo"],["פומלו","pomelo fruit","pomelo"],
 ["ראוסטנברג (טבור)","navel orange","navel"],["קרה קרה (טבור אדום)","cara cara orange","cara"],["שמוטי","Jaffa orange","jaffa|shamouti"],["מורו (דם)","moro blood orange","moro|blood"],["אורה (מנדרינה)","Orri mandarin","orri"],
 ["מישל","Michal mango","michal"],["נטע","Neta mango","neta"],["נובה","Nova mango","nova"],["ניו","mango fruit",""],["עומר","Omer mango","omer"],["שלי","Shelly mango","shelly"],["ונוס","Venus mango","venus"],
-["פאירי","Fairchild mango","fairchild"],["R2E2","R2E2 mango","r2e2"],["טנגו","Tango mango","tango"],["גיילור","Gaylour mango","gaylour"],["פיור גולד","Pure Gold mango","pure gold"],["מיה","Maya mango","maya"],["מאגי","Maggie mango","maggie"],["קיט","Keitt mango","keitt"],
+["פאירי","Fairchild mango","fairchild"],["R2E2","R2E2 mango","r2e2"],["טנגו","Tango mango","tango"],["גיילור","Gaylour mango","gaylour"],["פיור גולד","Pure Gold mango","pure gold"],["מאיה","Maya mango","maya"],["מאגי","Maggie mango","maggie"],["קיט","Keitt mango","keitt"],
 ["אטינגר","Ettinger avocado","ettinger"],["טיג","Tig avocado",""],["גליל","Galil avocado","galil"],["פוארטה","Fuerte avocado","fuerte"],["פינקרטון","Pinkerton avocado","pinkerton"],["מלומה","Maluma avocado","maluma"],["הס","Hass avocado","hass"],["ריד (מאוחר)","Reed avocado","reed"],
 ["גאלה (מוקדם)","Gala apple","gala"],["זהוב / Golden","Golden Delicious apple","golden"],["פינק ליידי (מאוחר)","Pink Lady apple","pink lady|cripps"],
 ["עודד (אפרסק מוקדם)","peach fruit",""],["נקטרינה צהובה","nectarine fruit","nectarine"],["נקטרינה לבנה","white nectarine","white"],["סאמר סנו","peach fruit","summer"],["פיתה (אפרסק שטוח)","flat peach","flat|donut|doughnut|saturn|peento"],
@@ -513,7 +513,7 @@ function CatSection({cat,children,count}){
 /* ─── map name → harvest summary ─── */
 const ALIAS={};
 const al=(label,...names)=>names.forEach(n=>ALIAS[nrm(n)]=label);
-["מישל","נטע","נובה","ניו","עומר","שלי","ונוס","פאירי","R2E2","טנגו","גיילור","פיור גולד","מיה","מאגי","קיט"].forEach(n=>al(n,"מנגו "+n));
+["מישל","נטע","נובה","ניו","עומר","שלי","ונוס","פאירי","R2E2","טנגו","גיילור","פיור גולד","מאיה","מאגי","קיט"].forEach(n=>al(n,"מנגו "+n));
 al("הס","אבוקדו הס");al("טיג","אבוקדו טיג");al("מלומה","אבוקדו מלומה");al("ריד (מאוחר)","אבוקדו ריד");al("גליל","אבוקדו גליל");
 al("פקאן מהן","פקאן מהן");al("פקאן מוהוק","פקאן מוהוק");al("פקאן צ׳וקטו","פקאן צ'וקטו","פקאן צ'וקוטו");al("פקאן אפאצ׳י","פקאן אפאצ'י");
 al("צ׳ה","צ'ה גדול");al("גרומיצ׳ומה","גרומיצ'ומה");al("פיג׳ויה","פיג'ויה");al("גבוטיקבה","גבוטיקבה");al("קרמבולה (כוכב)","קרמבולה");
@@ -581,7 +581,7 @@ const MAP_A=[
   [P,P,"קלמנטינה אור","שמוטי","פומלו","תאנה קפריסאית","מנגו טנגו","מנגו פאירי","",P,"אבוקדו מלומה","אטינגר",P,""],
   [P,P,"אורה","ראוסטנברג","פומלית אדומה","תאנה ברזילאית","מנגו קיט","מנגו פיור גולד","דובדבן קפולין",P,"אנונה","אטינגר",P,""],
   [P,P,"אורה","ראוסטנברג","פומלית אדומה","","","מנגו מאגי","גרגר פנמה",P,"אנונה אדומה","אבוקדו ריד",P,"3 גוג'י ברי"],
-  [P,P,"מיכל","תפוז דם מורו","פומלית","","","מנגו מיה","ריו גרנדה",P,"אנונה גפנר","אבוקדו ריד",P,""],
+  [P,P,"מיכל","תפוז דם מורו","פומלית","","","מנגו מאיה","ריו גרנדה",P,"אנונה גפנר","אבוקדו ריד",P,""],
   ["אפרסק פיתה","אורנג' ברי","מיכל","קרה קרה","פומלית","","","מנגו R2E2","סידר ביי",P,"אנונה גפנר","פינקרטון",P,"פינגר ליים / הל"],
   ["אפרסמון סידלס","שסק איברי","","ג'קפרוט","יאנג מיי","שזיף המושל","קטמבילה","מנגו הרכבה","גודגדן",P,"אנונה","אבוקדו גליל",P,"2 סברס"],
   ["אפרסמון שינשו","","קוקולובה","ווטר ברי","פלסה","ביגניי","נאשי","",P,P,P,P,P,P],
