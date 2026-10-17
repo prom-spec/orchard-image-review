@@ -702,14 +702,6 @@ function App(){
   const totalVar=useMemo(()=>cats.reduce((s,c)=>s+c.harvest.length,0),[]);
 
   const isMap=view==="mapA"||view==="mapB";
-  const exportPicks=()=>{
-    const o={};
-    try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf("img:")===0)o[k.slice(4)]=JSON.parse(localStorage.getItem(k));}}catch(e){}
-    const n=Object.keys(o).length;
-    if(!n){alert("עוד לא נבחרו תמונות");return;}
-    const txt=JSON.stringify(o);
-    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>alert("הועתקו "+n+" תמונות. הדבק אותן בצ'אט."),()=>window.prompt("העתק (Ctrl+C):",txt));
-  };
   const pickTree=n=>{const r=lookupTree(n);setModal({item:r.item,emoji:r.emoji,cid:r.cid});};
   return(<div style={{padding:"16px 10px",minHeight:"100vh"}}>
     {modal&&<VarietyModal item={modal.item} catEmoji={modal.emoji} cid={modal.cid} onClose={()=>setModal(null)}/>}
@@ -806,9 +798,6 @@ function App(){
         </div>
       </>}
 
-      <div style={{textAlign:"center",marginTop:14}}>
-        <button onClick={exportPicks} style={{fontSize:11,padding:"6px 12px",border:"1px solid #D8D3CA",borderRadius:12,background:"#fff",cursor:"pointer"}}>📤 ייצא את התמונות שבחרתי</button>
-      </div>
       <p style={{textAlign:"center",fontSize:10,color:"#B5B0A8",marginTop:16,lineHeight:1.8}}>⏱ מותאם לאקלים השרון · 💧 כולם על אותה מערכת השקיה<br/>📅 טיפול מקובץ לפי פעולה · 🍎 קטיף לפי זן (לחץ למידע)</p>
     </div>
   </div>);
