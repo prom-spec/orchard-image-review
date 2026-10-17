@@ -302,17 +302,17 @@ const cats=[
 
 /* Planting evidence collected per cultivar/subgroup.  The category-level care
    window remains the fallback for entries without a source-backed interval. */
-const P_ALL=[1,2,3,4,5,6,7,8,9,10,11,12], P_DORMANT=[12,1,2,3], P_WINTER_SPRING=[12,1,2,3,4,5], P_WINTER_SUMMER=[12,1,2,3,4,5,6];
+const P_DORMANT=[12,1,2,3], P_LATE_WINTER_SPRING=[2,3,4], P_WINTER_SPRING=[12,1,2,3,4,5], P_WINTER_SUMMER=[12,1,2,3,4,5,6];
 const PLANTING_BY_VARIETY={
   figs:["תאנה לבנה","תאנה קפריסאית","תאנה ברזילאית"].map(l=>({l,m:P_DORMANT,src:"https://www.organi-co.co.il/growing/fig"})),
   persimmon:["שינשו","סידלס (טריומף)","רוחו קרמבו"].map(l=>({l,m:P_WINTER_SUMMER,src:"https://www.organi-co.co.il/growing/persimmon"})),
   grapes:[{l:"איזבלה",m:P_DORMANT,src:"https://www.organi-co.co.il/growing/isabella-grape"},{l:"קרימזון",m:P_DORMANT,src:"https://www.organi-co.co.il/growing/grapevine"}],
-  pomegranate:["וונדרפול","הרשקוביץ"].map(l=>({l,m:P_ALL,src:"https://www.organi-co.co.il/growing/pomegranate"})),
+  pomegranate:["וונדרפול","הרשקוביץ"].map(l=>({l,m:P_LATE_WINTER_SPRING,src:"https://www.organi-co.co.il/growing/pomegranate"})),
   cherry:["גודגדן","דובדבן"].map(l=>({l,m:P_WINTER_SUMMER,src:"https://www.organi-co.co.il/growing/cherry-tree"})),
   pecan:["פקאן צ׳וקטו","פקאן וויצ׳יטה"].map(l=>({l,m:P_WINTER_SUMMER,src:"https://www.organi-co.co.il/growing/pecan"})),
   nuts:[{l:"אגוז מלך",m:P_WINTER_SPRING,src:"https://www.organi-co.co.il/growing/walnut"}],
-  mulberry:["שחור מקדים","שהמי","תות פקיסטני לבן","תות פקיסטני אדום","תות אפגני לבן","תות אפגני אדום","תות אפגני שחור"].map(l=>({l,m:P_ALL,src:"https://www.organi-co.co.il/growing/afghan-mulberry"})),
-  raspberry:["פטל לנדאו","פטל פריים ארק","פטל רפאו","פטל בויסן"].map(l=>({l,m:P_ALL,src:"https://www.organi-co.co.il/growing/rubus"}))
+  mulberry:["שחור מקדים","שהמי","תות פקיסטני לבן","תות פקיסטני אדום","תות אפגני לבן","תות אפגני אדום","תות אפגני שחור"].map(l=>({l,m:P_WINTER_SPRING,src:"https://www.organi-co.co.il/growing/afghan-mulberry"})),
+  raspberry:["פטל לנדאו","פטל פריים ארק","פטל רפאו","פטל בויסן"].map(l=>({l,m:P_WINTER_SUMMER,src:"https://www.organi-co.co.il/growing/rubus"}))
 };
 const careEntries=(cat,a)=>{
   if(a.t!=="planting"||!PLANTING_BY_VARIETY[cat.id])return separateCareNames(cat.n).map(name=>({name,a}));
