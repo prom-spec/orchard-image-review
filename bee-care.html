@@ -28,6 +28,10 @@
     details:first-of-type { border-top:none; }
     summary { cursor:pointer; font-weight:bold; color:var(--green); }
     summary span { color:#6a645c; font-size:13px; font-weight:normal; }
+    .months { display:flex; gap:6px; overflow-x:auto; padding:2px 0 10px; margin-top:8px; }
+    .months button { flex:0 0 auto; border:1px solid var(--line); background:#fff; color:#625d55; border-radius:16px; padding:6px 11px; font:inherit; font-size:13px; cursor:pointer; }
+    .months button.active { background:var(--green); border-color:var(--green); color:#fff; font-weight:bold; }
+    #monthly-plan details[hidden] { display:none; }
     footer { margin-top:24px; border-top:1px solid var(--line); padding-top:14px; color:#625d55; font-size:13px; }
   </style>
 </head>
@@ -90,18 +94,21 @@
   <section class="card">
     <h2>לוח חודשי מפורט</h2>
     <p class="sub">המידע מהלוח הקודם נשמר כאן. פרטי זרימות צוף, רדייה, ריסוסים ומלכודות מסומנים ככאלה שדורשים אימות מקומי עם דבוראי.</p>
-    <details><summary>ינואר <span>· חורף</span></summary><ul><li>תצפית מבחוץ בלבד; הרמה/שקילה עדינה לבדיקת מלאי.</li><li>כשחסר מזון: סירופ 2:1 או חלת דבש, רק אם התנאים מאפשרים.</li><li>גג מקובע, ניקוז ופתח מוקטן; טיפול ורואה רק לפי דבוראי ומדידה.</li></ul></details>
-    <details><summary>פברואר <span>· סוף חורף</span></summary><ul><li>ביקורת מלאה ראשונה ביום חם: מלכה, דגרה ומלאי.</li><li>האכלת עידוד 1:1 ואבקה רק לפי צורך ולפני זרימה; בדיקת ורואה לפני קומות.</li><li>מעקב נחילה; בחינת איחוד מושבות חלשות או החלפת מלכה; מקור מים קבוע.</li></ul></details>
-    <details><summary>מרץ <span>· אביב / אבוקדו</span></summary><ul><li>תיאום ריסוסים עם מגדלי האבוקדו; להיזהר משוד וצפיפות.</li><li>קומות דבש ומפריד מלכה רק לפי זרימה ומוכנות המושבה; ביקורת נחילה כל 7–10 ימים.</li><li>אין טיפול כימי כשיש קומות דבש; מלכודות מישמיש רחוק מהכוורות.</li></ul></details>
-    <details><summary>אפריל <span>· שיא זרימה</span></summary><ul><li>הוספת קומות לפי זרימה וצפיפות; מים וצל חלקי.</li><li>ביקורת נחילה כל 7–10 ימים. פיצול רק בכוורת חזקה עם מזון, מלכה/תוכנית מלכה וזכרים.</li><li>הכנת מלכודות לצרעה מזרחית לפי צורך מקומי.</li></ul></details>
-    <details><summary>מאי <span>· סוף אביב</span></summary><ul><li>רדיית אביב רק מחלות חתומות מספיק ובדיקת לחות; להפריד מקורות דבש אם נדרש.</li><li>אחרי רדייה: מדידת ורואה והחלטה על טיפול; להשאיר די דבש לדבורים.</li><li>מים, צל, ותיעוד יבול/תוויות לפי הדרישות.</li></ul></details>
-    <details><summary>יוני <span>· תחילת קיץ</span></summary><ul><li>אם יש זרימת אקליפטוס: קומות; אם אין, מורידים קומות ריקות.</li><li>בדיקת מלאי והאכלה בערב רק בהיעדר זרימה ובמידת צורך.</li><li>מניעת שוד, צרעות, צל ואוורור; בדיקת ורואה.</li></ul></details>
-    <details><summary>יולי <span>· קיץ חם</span></summary><ul><li>צל, אוורור ומים.</li><li>בדיקת ורואה וטיפול רק בתיאום עם קומות דבש ותוצאת המדידה.</li><li>מעקב צרעות ושוד; בדיקת זרימת אקליפטוס, מלאי והאכלה לפי צורך.</li></ul></details>
-    <details><summary>אוגוסט <span>· שיא מזיקים</span></summary><ul><li>בדיקת ורואה וטיפול/בדיקת יעילות לפי הנחיה מקצועית.</li><li>צרעות: מלכודות ופתח מוקטן לפי צורך; רדיית קיץ רק אם יש.</li><li>שקילה/בדיקת מלאי; בחינת החלפת מלכה ישנה.</li></ul></details>
-    <details><summary>ספטמבר <span>· סוף קיץ</span></summary><ul><li>זרימת אקליפטוס סתווית: קומות רק לפי זרימה.</li><li>החלפת מלכה לפני החורף לפי צורך; תזמון טיפול ורואה מול רדייה.</li><li>המשך מניעת צרעות והאכלה רק אם אין זרימה וחסר מזון.</li></ul></details>
-    <details><summary>אוקטובר <span>· סתיו</span></summary><ul><li>הכנה לגשם: הגבהה, גג, ניקוז, פתח מוקטן והגנת מכרסמים.</li><li>השלמת מלאי חורף ב-2:1 רק כשצריך ואין אגירת דבש.</li><li>שקילת איחוד משפחות חלשות לאחר אבחון; המשך מלכודות עד סוף נובמבר לפי צורך.</li></ul></details>
-    <details><summary>נובמבר <span>· סתיו / חורף</span></summary><ul><li>רדיית אקליפטוס רק בסוף הזרימה; לאחריה מדידת ורואה וטיפול לפני חורף לפי תוצאה.</li><li>סגירת חורף: ניקוז, גג ופתח מוקטן; ביקורת קלה ביום חם בלבד.</li><li>אחסון קומות נקי וללא חומרים לא מאושרים.</li></ul></details>
-    <details><summary>דצמבר <span>· חורף</span></summary><ul><li>תצפית מבחוץ והרמה לבדיקת מלאי; האכלת חירום רק אם הכוורת קלה מאוד.</li><li>אחרי סערה: בדיקת גג וניקוז.</li><li>סיכום שנה: יבול לפי מקור, טיפולים ויומן כוורת.</li></ul></details>
+    <div class="months" id="month-nav" aria-label="בחירת חודש"></div>
+    <div id="monthly-plan">
+      <details open><summary>ינואר <span>· חורף</span></summary><ul><li>תצפית מבחוץ בלבד; הרמה/שקילה עדינה לבדיקת מלאי.</li><li>כשחסר מזון: סירופ 2:1 או חלת דבש, רק אם התנאים מאפשרים.</li><li>גג מקובע, ניקוז ופתח מוקטן; טיפול ורואה רק לפי דבוראי ומדידה.</li></ul></details>
+      <details><summary>פברואר <span>· סוף חורף</span></summary><ul><li>ביקורת מלאה ראשונה ביום חם: מלכה, דגרה ומלאי.</li><li>האכלת עידוד 1:1 ואבקה רק לפי צורך ולפני זרימה; בדיקת ורואה לפני קומות.</li><li>מעקב נחילה; בחינת איחוד מושבות חלשות או החלפת מלכה; מקור מים קבוע.</li></ul></details>
+      <details><summary>מרץ <span>· אביב / אבוקדו</span></summary><ul><li>תיאום ריסוסים עם מגדלי האבוקדו; להיזהר משוד וצפיפות.</li><li>קומות דבש ומפריד מלכה רק לפי זרימה ומוכנות המושבה; ביקורת נחילה כל 7–10 ימים.</li><li>אין טיפול כימי כשיש קומות דבש; מלכודות מישמיש רחוק מהכוורות.</li></ul></details>
+      <details><summary>אפריל <span>· שיא זרימה</span></summary><ul><li>הוספת קומות לפי זרימה וצפיפות; מים וצל חלקי.</li><li>ביקורת נחילה כל 7–10 ימים. פיצול רק בכוורת חזקה עם מזון, מלכה/תוכנית מלכה וזכרים.</li><li>הכנת מלכודות לצרעה מזרחית לפי צורך מקומי.</li></ul></details>
+      <details><summary>מאי <span>· סוף אביב</span></summary><ul><li>רדיית אביב רק מחלות חתומות מספיק ובדיקת לחות; להפריד מקורות דבש אם נדרש.</li><li>אחרי רדייה: מדידת ורואה והחלטה על טיפול; להשאיר די דבש לדבורים.</li><li>מים, צל, ותיעוד יבול/תוויות לפי הדרישות.</li></ul></details>
+      <details><summary>יוני <span>· תחילת קיץ</span></summary><ul><li>אם יש זרימת אקליפטוס: קומות; אם אין, מורידים קומות ריקות.</li><li>בדיקת מלאי והאכלה בערב רק בהיעדר זרימה ובמידת צורך.</li><li>מניעת שוד, צרעות, צל ואוורור; בדיקת ורואה.</li></ul></details>
+      <details><summary>יולי <span>· קיץ חם</span></summary><ul><li>צל, אוורור ומים.</li><li>בדיקת ורואה וטיפול רק בתיאום עם קומות דבש ותוצאת המדידה.</li><li>מעקב צרעות ושוד; בדיקת זרימת אקליפטוס, מלאי והאכלה לפי צורך.</li></ul></details>
+      <details><summary>אוגוסט <span>· שיא מזיקים</span></summary><ul><li>בדיקת ורואה וטיפול/בדיקת יעילות לפי הנחיה מקצועית.</li><li>צרעות: מלכודות ופתח מוקטן לפי צורך; רדיית קיץ רק אם יש.</li><li>שקילה/בדיקת מלאי; בחינת החלפת מלכה ישנה.</li></ul></details>
+      <details><summary>ספטמבר <span>· סוף קיץ</span></summary><ul><li>זרימת אקליפטוס סתווית: קומות רק לפי זרימה.</li><li>החלפת מלכה לפני החורף לפי צורך; תזמון טיפול ורואה מול רדייה.</li><li>המשך מניעת צרעות והאכלה רק אם אין זרימה וחסר מזון.</li></ul></details>
+      <details><summary>אוקטובר <span>· סתיו</span></summary><ul><li>הכנה לגשם: הגבהה, גג, ניקוז, פתח מוקטן והגנת מכרסמים.</li><li>השלמת מלאי חורף ב-2:1 רק כשצריך ואין אגירת דבש.</li><li>שקילת איחוד משפחות חלשות לאחר אבחון; המשך מלכודות עד סוף נובמבר לפי צורך.</li></ul></details>
+      <details><summary>נובמבר <span>· סתיו / חורף</span></summary><ul><li>רדיית אקליפטוס רק בסוף הזרימה; לאחריה מדידת ורואה וטיפול לפני חורף לפי תוצאה.</li><li>סגירת חורף: ניקוז, גג ופתח מוקטן; ביקורת קלה ביום חם בלבד.</li><li>אחסון קומות נקי וללא חומרים לא מאושרים.</li></ul></details>
+      <details><summary>דצמבר <span>· חורף</span></summary><ul><li>תצפית מבחוץ והרמה לבדיקת מלאי; האכלת חירום רק אם הכוורת קלה מאוד.</li><li>אחרי סערה: בדיקת גג וניקוז.</li><li>סיכום שנה: יבול לפי מקור, טיפולים ויומן כוורת.</li></ul></details>
+    </div>
   </section>
 
   <section class="card">
@@ -126,5 +133,20 @@
     חלונות העונה מותאמים בזהירות לאקלים ישראלי; בדיקה בפועל והנחיה של דבוראי/מדריך מקומי גוברות על הדף.
   </footer>
 </main>
+<script>
+  const months = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+  const entries = [...document.querySelectorAll('#monthly-plan details')];
+  const nav = document.querySelector('#month-nav');
+  function chooseMonth(index) {
+    entries.forEach((entry, i) => { entry.hidden = i !== index; entry.open = i === index; });
+    [...nav.children].forEach((button, i) => button.classList.toggle('active', i === index));
+  }
+  months.forEach((name, index) => {
+    const button = document.createElement('button');
+    button.type = 'button'; button.textContent = name; button.addEventListener('click', () => chooseMonth(index));
+    nav.append(button);
+  });
+  chooseMonth(new Date().getMonth());
+</script>
 </body>
 </html>
