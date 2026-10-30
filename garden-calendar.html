@@ -710,6 +710,9 @@ function App(){
         <h1 style={{fontSize:20,fontWeight:700,margin:0}}>בוסתן להבי בני ציון</h1>
         <span style={{fontSize:10,color:"#9A958D",whiteSpace:"nowrap"}}>{total} עצים · {totalVar} זנים</span>
       </div>
+      <div style={{textAlign:"center",margin:"-4px 0 12px"}}>
+        <a href="bee-care.html" style={{fontSize:12,fontWeight:600,color:"#2D6A3F",textDecoration:"none"}}>🐝 תוכנית טיפול דבורים</a>
+      </div>
 
       <div style={{display:"flex",marginBottom:10,borderRadius:8,overflow:"hidden",border:"1px solid #D8D3CA"}}>
         {[{id:"gantt",l:"📊 שנתי"},{id:"monthly",l:"📅 חודשי"},{id:"mapA",l:"🗺️ שטח א"},{id:"mapB",l:"🗺️ שטח ב"}].map(v=>(<button key={v.id} onClick={()=>setView(v.id)} style={{flex:1,padding:"8px 0",fontSize:12,fontWeight:600,border:"none",cursor:"pointer",background:view===v.id?"#2D6A3F":"#fff",color:view===v.id?"#fff":"#555"}}>{v.l}</button>))}
