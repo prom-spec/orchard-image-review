@@ -5,17 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>לוח טיפול שנתי — שתי כוורות דבש</title>
   <style>
-    :root { --green:#2d6a3f; --cream:#faf8f3; --ink:#2d2a26; --line:#ded8cd; --soft:#eff6ef; }
+    :root { --green:#386641; --dark:#243d2a; --cream:#fffaf0; --ink:#322817; --line:#eadcb9; --soft:#f4f8eb; --honey:#e5a713; --orange:#c96f19; }
     * { box-sizing:border-box; }
-    body { margin:0; background:var(--cream); color:var(--ink); font-family:Arial, sans-serif; line-height:1.65; }
-    main { max-width:760px; margin:0 auto; padding:24px 16px 48px; }
-    h1 { margin:0; color:var(--green); font-size:28px; }
+    body { margin:0; background:radial-gradient(circle at 15% 0,#fff3c6 0,transparent 28rem),var(--cream); color:var(--ink); font-family:Arial, sans-serif; line-height:1.65; }
+    main { max-width:760px; margin:0 auto; padding:16px 16px 48px; }
+    h1 { margin:0; color:#fff; font-size:28px; line-height:1.25; }
     h2 { font-size:19px; color:var(--green); margin:0 0 8px; }
     h3 { font-size:16px; margin:0 0 5px; }
     p { margin:7px 0; }
-    .sub { color:#666; margin-top:3px; }
-    .notice { background:#fff7dd; border:1px solid #e8d39b; border-radius:10px; padding:12px 14px; margin:18px 0; font-size:14px; }
-    .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; margin:12px 0; }
+    .sub { color:#6c604d; margin-top:3px; }
+    .hero { position:relative; overflow:hidden; border-radius:20px; background:linear-gradient(135deg,#345e3b,#4d7d43); color:#fff; padding:22px 20px 18px; box-shadow:0 10px 24px rgba(47,83,45,.18); }
+    .hero::after { content:"⬡ ⬡ ⬡\A  ⬡ ⬡"; white-space:pre; position:absolute; left:-6px; top:-18px; font-size:54px; line-height:.8; color:rgba(255,220,109,.18); transform:rotate(-12deg); }
+    .hero .sub { position:relative; color:#e8f0dc; margin:6px 0 0; font-size:14px; }
+    .notice { background:#fff3cf; border:1px solid #edcf7b; border-radius:14px; padding:12px 14px; margin:15px 0; font-size:14px; box-shadow:0 3px 9px rgba(118,83,18,.06); }
+    .card { background:rgba(255,255,255,.93); border:1px solid var(--line); border-radius:16px; padding:16px; margin:12px 0; box-shadow:0 4px 13px rgba(91,67,25,.06); }
     .month { color:#6a645c; font-size:14px; font-weight:bold; }
     ul { margin:7px 0 0; padding-right:20px; }
     li { margin:4px 0; }
@@ -23,28 +26,33 @@
     th, td { text-align:right; vertical-align:top; border:1px solid var(--line); padding:9px; }
     th { background:var(--soft); color:var(--green); }
     a { color:var(--green); }
-    .back { display:inline-block; color:#fff; background:var(--green); padding:9px 13px; border-radius:8px; text-decoration:none; font-weight:bold; }
-    details { border-top:1px solid var(--line); padding:10px 0; }
+    .back { display:inline-block; color:var(--green); background:#fff; padding:8px 12px; border-radius:12px; text-decoration:none; font-weight:bold; margin:0 0 10px; border:1px solid var(--line); box-shadow:0 3px 8px rgba(91,67,25,.07); }
+    details { border-top:1px solid var(--line); padding:11px 0; }
     details:first-of-type { border-top:none; }
-    summary { cursor:pointer; font-weight:bold; color:var(--green); }
+    summary { cursor:pointer; font-weight:bold; color:var(--green); list-style:none; display:flex; align-items:center; gap:6px; }
+    summary::-webkit-details-marker { display:none; }
+    summary::before { content:attr(data-icon); display:inline-grid; place-items:center; width:27px; height:27px; border-radius:9px; background:#fff3cf; font-size:15px; }
     summary span { color:#6a645c; font-size:13px; font-weight:normal; }
-    .months { display:flex; gap:6px; overflow-x:auto; padding:2px 0 10px; margin-top:8px; }
-    .months button { flex:0 0 auto; border:1px solid var(--line); background:#fff; color:#625d55; border-radius:16px; padding:6px 11px; font:inherit; font-size:13px; cursor:pointer; }
-    .months button.active { background:var(--green); border-color:var(--green); color:#fff; font-weight:bold; }
+    .months { display:flex; gap:6px; overflow-x:auto; padding:4px 1px 12px; margin-top:8px; scrollbar-width:thin; }
+    .months button { flex:0 0 auto; border:1px solid var(--line); background:#fffdf7; color:#625d55; border-radius:18px; padding:7px 12px; font:inherit; font-size:13px; cursor:pointer; transition:.15s transform,.15s background; }
+    .months button:hover { transform:translateY(-1px); }
+    .months button.active { background:linear-gradient(135deg,var(--honey),#c98400); border-color:#c98400; color:#fff; font-weight:bold; box-shadow:0 4px 8px rgba(190,128,0,.25); }
     #monthly-plan details[hidden] { display:none; }
     footer { margin-top:24px; border-top:1px solid var(--line); padding-top:14px; color:#625d55; font-size:13px; }
   </style>
 </head>
 <body>
 <main>
-  <a class="back" href="garden-calendar.html">← חזרה לדף הבוסתן</a>
-  <h1>🐝 לוח טיפול שנתי — שתי כוורות דבש</h1>
-  <p class="sub">שטח ב · לוח העבודה הקודם, בתוספת תוכנית האכלה, חלות, פיצולים ומלכונים.</p>
+  <a class="back" href="garden-calendar.html">← חזרה לבוסתן</a>
+  <header class="hero">
+    <h1>🐝 לוח טיפול שנתי<br>לשתי כוורות דבש</h1>
+    <p class="sub">שטח ב · לוח העבודה הקודם, בתוספת האכלה, חלות, פיצולים ומלכונים.</p>
+  </header>
 
   <div class="notice"><strong>כלל בסיס:</strong> מצב הכוורת קודם ללוח השנה. לפני כל פעולה בודקים כוח מושבה, מלאי מזון, מזג אוויר, נוכחות מלכה ומצב ורואה. אין להאכיל בזמן אגירת דבש/קומות דבש, ואין לטפל בוורואה בלי מדידה, תווית חוקית והנחיה מקצועית.</div>
 
   <section class="card">
-    <h2>סתיו — הכנה לחורף</h2>
+    <h2>🍯 סתיו — הכנה לחורף</h2>
     <p class="month">ספטמבר–נובמבר, לפי אזור וזרימת הצוף</p>
     <ul>
       <li>בדיקת מלאי, חוזק המושבה, מלכה, מים ואוורור.</li>
@@ -55,7 +63,7 @@
   </section>
 
   <section class="card">
-    <h2>חורף — שמירת מלאי ומושבה</h2>
+    <h2>❄️ חורף — שמירת מלאי ומושבה</h2>
     <p class="month">נובמבר–אמצע פברואר</p>
     <ul>
       <li>בדיקת משקל/מלאי כל כשבועיים, בעדינות וביום מתאים.</li>
@@ -65,7 +73,7 @@
   </section>
 
   <section class="card">
-    <h2>סוף חורף ואביב — בנייה, נחילה ופיצולים</h2>
+    <h2>🌼 סוף חורף ואביב — בנייה, נחילה ופיצולים</h2>
     <p class="month">מפברואר ועד תחילת זרימת הצוף היציבה</p>
     <ul>
       <li>בדיקה כל 7–10 ימים: מזון, שטח הטלה, צפיפות, תאי מלכה ומקום להתרחבות.</li>
@@ -76,12 +84,12 @@
   </section>
 
   <section class="card">
-    <h2>חלות שחורות ורוטציית חלות</h2>
+    <h2>🟫 חלות שחורות ורוטציית חלות</h2>
     <p>מחליפים בהדרגה חלות כהות או פגומות מתוך אזור הדגרה — בערך 20–30% בשנה — בעונת בנייה, כשיש כוח וצוף/הזנה מתאימה. לא מפרקים את קן הדגרה ולא מוציאים יותר מדי חלות באותה ביקורת. חלות חשודות במחלה מבודדים ולא מעבירים בין מושבות.</p>
   </section>
 
   <section class="card">
-    <h2>קיץ ואחרי קטיף</h2>
+    <h2>☀️ קיץ ואחרי קטיף</h2>
     <p class="month">לאחר זרימת הצוף/הקטיף</p>
     <ul>
       <li>מים זמינים, צל ואוורור; מעקב אחר התחממות, שוד ומזיקים.</li>
@@ -92,27 +100,27 @@
   </section>
 
   <section class="card">
-    <h2>לוח חודשי מפורט</h2>
+    <h2>📅 לוח חודשי מפורט</h2>
     <p class="sub">המידע מהלוח הקודם נשמר כאן. פרטי זרימות צוף, רדייה, ריסוסים ומלכודות מסומנים ככאלה שדורשים אימות מקומי עם דבוראי.</p>
     <div class="months" id="month-nav" aria-label="בחירת חודש"></div>
     <div id="monthly-plan">
-      <details open><summary>ינואר <span>· חורף</span></summary><ul><li>תצפית מבחוץ בלבד; הרמה/שקילה עדינה לבדיקת מלאי.</li><li>כשחסר מזון: סירופ 2:1 או חלת דבש, רק אם התנאים מאפשרים.</li><li>גג מקובע, ניקוז ופתח מוקטן; טיפול ורואה רק לפי דבוראי ומדידה.</li></ul></details>
-      <details><summary>פברואר <span>· סוף חורף</span></summary><ul><li>ביקורת מלאה ראשונה ביום חם: מלכה, דגרה ומלאי.</li><li>האכלת עידוד 1:1 ואבקה רק לפי צורך ולפני זרימה; בדיקת ורואה לפני קומות.</li><li>מעקב נחילה; בחינת איחוד מושבות חלשות או החלפת מלכה; מקור מים קבוע.</li></ul></details>
-      <details><summary>מרץ <span>· אביב / אבוקדו</span></summary><ul><li>תיאום ריסוסים עם מגדלי האבוקדו; להיזהר משוד וצפיפות.</li><li>קומות דבש ומפריד מלכה רק לפי זרימה ומוכנות המושבה; ביקורת נחילה כל 7–10 ימים.</li><li>אין טיפול כימי כשיש קומות דבש; מלכודות מישמיש רחוק מהכוורות.</li></ul></details>
-      <details><summary>אפריל <span>· שיא זרימה</span></summary><ul><li>הוספת קומות לפי זרימה וצפיפות; מים וצל חלקי.</li><li>ביקורת נחילה כל 7–10 ימים. פיצול רק בכוורת חזקה עם מזון, מלכה/תוכנית מלכה וזכרים.</li><li>הכנת מלכודות לצרעה מזרחית לפי צורך מקומי.</li></ul></details>
-      <details><summary>מאי <span>· סוף אביב</span></summary><ul><li>רדיית אביב רק מחלות חתומות מספיק ובדיקת לחות; להפריד מקורות דבש אם נדרש.</li><li>אחרי רדייה: מדידת ורואה והחלטה על טיפול; להשאיר די דבש לדבורים.</li><li>מים, צל, ותיעוד יבול/תוויות לפי הדרישות.</li></ul></details>
-      <details><summary>יוני <span>· תחילת קיץ</span></summary><ul><li>אם יש זרימת אקליפטוס: קומות; אם אין, מורידים קומות ריקות.</li><li>בדיקת מלאי והאכלה בערב רק בהיעדר זרימה ובמידת צורך.</li><li>מניעת שוד, צרעות, צל ואוורור; בדיקת ורואה.</li></ul></details>
-      <details><summary>יולי <span>· קיץ חם</span></summary><ul><li>צל, אוורור ומים.</li><li>בדיקת ורואה וטיפול רק בתיאום עם קומות דבש ותוצאת המדידה.</li><li>מעקב צרעות ושוד; בדיקת זרימת אקליפטוס, מלאי והאכלה לפי צורך.</li></ul></details>
-      <details><summary>אוגוסט <span>· שיא מזיקים</span></summary><ul><li>בדיקת ורואה וטיפול/בדיקת יעילות לפי הנחיה מקצועית.</li><li>צרעות: מלכודות ופתח מוקטן לפי צורך; רדיית קיץ רק אם יש.</li><li>שקילה/בדיקת מלאי; בחינת החלפת מלכה ישנה.</li></ul></details>
-      <details><summary>ספטמבר <span>· סוף קיץ</span></summary><ul><li>זרימת אקליפטוס סתווית: קומות רק לפי זרימה.</li><li>החלפת מלכה לפני החורף לפי צורך; תזמון טיפול ורואה מול רדייה.</li><li>המשך מניעת צרעות והאכלה רק אם אין זרימה וחסר מזון.</li></ul></details>
-      <details><summary>אוקטובר <span>· סתיו</span></summary><ul><li>הכנה לגשם: הגבהה, גג, ניקוז, פתח מוקטן והגנת מכרסמים.</li><li>השלמת מלאי חורף ב-2:1 רק כשצריך ואין אגירת דבש.</li><li>שקילת איחוד משפחות חלשות לאחר אבחון; המשך מלכודות עד סוף נובמבר לפי צורך.</li></ul></details>
-      <details><summary>נובמבר <span>· סתיו / חורף</span></summary><ul><li>רדיית אקליפטוס רק בסוף הזרימה; לאחריה מדידת ורואה וטיפול לפני חורף לפי תוצאה.</li><li>סגירת חורף: ניקוז, גג ופתח מוקטן; ביקורת קלה ביום חם בלבד.</li><li>אחסון קומות נקי וללא חומרים לא מאושרים.</li></ul></details>
-      <details><summary>דצמבר <span>· חורף</span></summary><ul><li>תצפית מבחוץ והרמה לבדיקת מלאי; האכלת חירום רק אם הכוורת קלה מאוד.</li><li>אחרי סערה: בדיקת גג וניקוז.</li><li>סיכום שנה: יבול לפי מקור, טיפולים ויומן כוורת.</li></ul></details>
+      <details open><summary data-icon="❄️">ינואר <span>· חורף</span></summary><ul><li>תצפית מבחוץ בלבד; הרמה/שקילה עדינה לבדיקת מלאי.</li><li>כשחסר מזון: סירופ 2:1 או חלת דבש, רק אם התנאים מאפשרים.</li><li>גג מקובע, ניקוז ופתח מוקטן; טיפול ורואה רק לפי דבוראי ומדידה.</li></ul></details>
+      <details><summary data-icon="🌱">פברואר <span>· סוף חורף</span></summary><ul><li>ביקורת מלאה ראשונה ביום חם: מלכה, דגרה ומלאי.</li><li>האכלת עידוד 1:1 ואבקה רק לפי צורך ולפני זרימה; בדיקת ורואה לפני קומות.</li><li>מעקב נחילה; בחינת איחוד מושבות חלשות או החלפת מלכה; מקור מים קבוע.</li></ul></details>
+      <details><summary data-icon="🥑">מרץ <span>· אביב / אבוקדו</span></summary><ul><li>תיאום ריסוסים עם מגדלי האבוקדו; להיזהר משוד וצפיפות.</li><li>קומות דבש ומפריד מלכה רק לפי זרימה ומוכנות המושבה; ביקורת נחילה כל 7–10 ימים.</li><li>אין טיפול כימי כשיש קומות דבש; מלכודות מישמיש רחוק מהכוורות.</li></ul></details>
+      <details><summary data-icon="🌼">אפריל <span>· שיא זרימה</span></summary><ul><li>הוספת קומות לפי זרימה וצפיפות; מים וצל חלקי.</li><li>ביקורת נחילה כל 7–10 ימים. פיצול רק בכוורת חזקה עם מזון, מלכה/תוכנית מלכה וזכרים.</li><li>הכנת מלכודות לצרעה מזרחית לפי צורך מקומי.</li></ul></details>
+      <details><summary data-icon="🍯">מאי <span>· סוף אביב</span></summary><ul><li>רדיית אביב רק מחלות חתומות מספיק ובדיקת לחות; להפריד מקורות דבש אם נדרש.</li><li>אחרי רדייה: מדידת ורואה והחלטה על טיפול; להשאיר די דבש לדבורים.</li><li>מים, צל, ותיעוד יבול/תוויות לפי הדרישות.</li></ul></details>
+      <details><summary data-icon="🌿">יוני <span>· תחילת קיץ</span></summary><ul><li>אם יש זרימת אקליפטוס: קומות; אם אין, מורידים קומות ריקות.</li><li>בדיקת מלאי והאכלה בערב רק בהיעדר זרימה ובמידת צורך.</li><li>מניעת שוד, צרעות, צל ואוורור; בדיקת ורואה.</li></ul></details>
+      <details><summary data-icon="☀️">יולי <span>· קיץ חם</span></summary><ul><li>צל, אוורור ומים.</li><li>בדיקת ורואה וטיפול רק בתיאום עם קומות דבש ותוצאת המדידה.</li><li>מעקב צרעות ושוד; בדיקת זרימת אקליפטוס, מלאי והאכלה לפי צורך.</li></ul></details>
+      <details><summary data-icon="🐝">אוגוסט <span>· שיא מזיקים</span></summary><ul><li>בדיקת ורואה וטיפול/בדיקת יעילות לפי הנחיה מקצועית.</li><li>צרעות: מלכודות ופתח מוקטן לפי צורך; רדיית קיץ רק אם יש.</li><li>שקילה/בדיקת מלאי; בחינת החלפת מלכה ישנה.</li></ul></details>
+      <details><summary data-icon="🍂">ספטמבר <span>· סוף קיץ</span></summary><ul><li>זרימת אקליפטוס סתווית: קומות רק לפי זרימה.</li><li>החלפת מלכה לפני החורף לפי צורך; תזמון טיפול ורואה מול רדייה.</li><li>המשך מניעת צרעות והאכלה רק אם אין זרימה וחסר מזון.</li></ul></details>
+      <details><summary data-icon="🌧️">אוקטובר <span>· סתיו</span></summary><ul><li>הכנה לגשם: הגבהה, גג, ניקוז, פתח מוקטן והגנת מכרסמים.</li><li>השלמת מלאי חורף ב-2:1 רק כשצריך ואין אגירת דבש.</li><li>שקילת איחוד משפחות חלשות לאחר אבחון; המשך מלכודות עד סוף נובמבר לפי צורך.</li></ul></details>
+      <details><summary data-icon="🏠">נובמבר <span>· סתיו / חורף</span></summary><ul><li>רדיית אקליפטוס רק בסוף הזרימה; לאחריה מדידת ורואה וטיפול לפני חורף לפי תוצאה.</li><li>סגירת חורף: ניקוז, גג ופתח מוקטן; ביקורת קלה ביום חם בלבד.</li><li>אחסון קומות נקי וללא חומרים לא מאושרים.</li></ul></details>
+      <details><summary data-icon="✨">דצמבר <span>· חורף</span></summary><ul><li>תצפית מבחוץ והרמה לבדיקת מלאי; האכלת חירום רק אם הכוורת קלה מאוד.</li><li>אחרי סערה: בדיקת גג וניקוז.</li><li>סיכום שנה: יבול לפי מקור, טיפולים ויומן כוורת.</li></ul></details>
     </div>
   </section>
 
   <section class="card">
-    <h2>לוח בדיקה קצר</h2>
+    <h2>✅ לוח בדיקה קצר</h2>
     <table>
       <thead><tr><th>פעולה</th><th>חלון</th><th>תנאי הפעלה</th></tr></thead>
       <tbody>
